@@ -49,7 +49,11 @@ In the radiative-convective model of Venus by Bullock and Grinspoon (2001), as r
 |---|---|---|---|---|---|---|---|
 | Surface cooling | 422.7 K | 142.8 K | 68.8 K | 12 K | 3.3 K | 2.5 K | 1.5 K |
 
-One species at a time: the values are not additive.
+One species at a time: the values are not additive. On the page you can switch off several at once. Table 2 doesn't give combinations, so the page shows only what is certain:
+
+- the surface cools by **at least** the largest single effect, since taking more absorbers away only lowers the infrared opacity;
+- it cools by **at most** about 509 K (735 − 227), which would leave the ground at T_e: with nothing absorbing infrared and the albedo fixed, that is where the first run sits;
+- the plain sum of the single effects is not the answer. With everything switched off it comes to 653.6 K, which would leave the ground at 82 K, below T_e: impossible. Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.
 
 ## Objections
 

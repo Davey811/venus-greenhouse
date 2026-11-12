@@ -29,3 +29,4 @@ Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
   CO      -  3.3 K  ->  about 732 K
   SO2     -  2.5 K  ->  about 733 K
   HCl     -  1.5 K  ->  about 734 K
+  sum of the single effects 653.6 K, but everything off leaves the ground at Te: 508.7 K of warming in all -> the effects overlap, they don't add up

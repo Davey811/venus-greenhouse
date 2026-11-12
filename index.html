@@ -63,6 +63,11 @@
   .bar .f { display: block; height: 100%; background: #4a5563; border-radius: 6px; }
   .bar.on .f { background: var(--amber); }
   .bar .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--dim); }
+  .gtools { display: flex; gap: 6px; margin: -4px 0 12px; }
+  .gtools button { font: inherit; font-size: 12.5px; color: var(--dim); background: transparent; border: 1px dashed var(--line);
+    border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .gtools button:hover { color: var(--fg); border-color: var(--dim); }
+  #range { margin-top: 12px; }
   .bar.on .n { color: var(--fg); font-weight: 700; }
   .prose p, .prose li { max-width: 780px; }
   .prose p { margin: 0 0 11px; }
@@ -137,12 +142,14 @@
     </section>
 
     <section class="card" aria-label="Published model">
-      <h2>The published model: switch one absorber off</h2>
+      <h2>The published model: switch absorbers off</h2>
       <p class="note" style="margin:0 0 8px">Bullock and Grinspoon's radiative-convective model of Venus, as reported by Taylor and Grinspoon (2009, Table 2):
         how much the surface cools when one species is removed from the model's greenhouse calculation, with the planet's albedo
-        unchanged, even when the clouds are removed.</p>
-      <div class="gases" role="group" aria-label="Species" id="gases"></div>
+        unchanged, even when the clouds are removed. Switch off one or more.</p>
+      <div class="gases" role="group" aria-label="Absorbers switched off" id="gases"></div>
+      <div class="gtools"><button id="gAllOn">Switch all on</button><button id="gAllOff">Switch all off</button></div>
       <div class="bars" id="bars"></div>
+      <svg id="range" viewBox="0 0 480 92" role="img" aria-label="Surface temperature scale: where the model's result can be for the absorbers switched off"></svg>
       <p class="verdict" id="gasV"></p>
     </section>
   </div>
@@ -237,7 +244,8 @@
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
-  let mode = "greenhouse", gas = 0, hGreen = ZE, alb = A;
+  let mode = "greenhouse", hGreen = ZE, alb = A;
+  const off = new Set([0]);                        // absorbers switched off, by index in GASES
 
   const fmtW = w => `${Math.round(w).toLocaleString("en-US")} W/m²`;
   const K = t => `${t.toFixed(0)} K (${(t - 273.15).toFixed(0)} °C)`;
@@ -329,20 +337,73 @@
     const max = GASES[0][1];
     $("gases").innerHTML = ""; $("bars").innerHTML = "";
     GASES.forEach(([n, d], i) => {
-      const b = document.createElement("button"); b.textContent = `Switch off ${n}`; b.setAttribute("aria-pressed", String(i === gas));
-      b.onclick = () => { gas = i; renderGases(); }; $("gases").appendChild(b);
-      const row = document.createElement("div"); row.className = "bar" + (i === gas ? " on" : "");
-      row.innerHTML = `<span>${n}</span><span class="t"><span class="f" style="width:${Math.max(1.5, 100 * d / max)}%"></span></span><span class="n">−${d} K</span>`;
+      const b = document.createElement("button"); b.textContent = n; b.setAttribute("aria-pressed", String(off.has(i)));
+      b.title = off.has(i) ? `${n} is off: click to switch it on` : `${n} is on: click to switch it off`;
+      b.onclick = () => { off.has(i) ? off.delete(i) : off.add(i); renderGases(); }; $("gases").appendChild(b);
+      const row = document.createElement("div"); row.className = "bar" + (off.has(i) ? " on" : "");
+      row.innerHTML = `<span>${n}${off.has(i) ? " (off)" : ""}</span><span class="t"><span class="f" style="width:${Math.max(1.5, 100 * d / max)}%"></span></span><span class="n">−${d} K</span>`;
       $("bars").appendChild(row);
     });
-    const [n, d] = GASES[gas];
-    $("gasV").innerHTML = `Switch off the ${n} in the greenhouse calculation and the model's surface cools by <b>${d} K</b>, to roughly ${(VT[0] - d).toFixed(0)} K. One species at a time: the values don't add up.`;
+
+    const sel = [...off].map(i => GASES[i]);
+    const Tv = VT[0], floor = TE, total = Tv - TE;
+    const big = sel.reduce((m, g) => Math.max(m, g[1]), 0);
+    const sum = sel.reduce((t, g) => t + g[1], 0);
+    const all = sel.length === GASES.length;
+    // possible surface temperatures: one species -> published value; all -> T_e; otherwise between T_e and Tv - largest single effect
+    const hi = sel.length === 0 ? Tv : all ? floor : Tv - big;
+    const lo = sel.length === 0 ? Tv : sel.length === 1 ? Tv - big : floor;
+    drawRange(Tv, floor, lo, hi, sel.length >= 2 ? Tv - sum : null);
+
+    const r = t => t.toFixed(0);
+    let html;
+    if (sel.length === 0) html = `Every absorber on: the model's Venus, ${r(Tv)} K. Switch one or more off.`;
+    else if (sel.length === 1) html = `Switch off the ${sel[0][0]} and the model's surface cools by <b>${sel[0][1]} K</b>, to roughly ${r(Tv - sel[0][1])} K. This is the published value.`;
+    else if (all) html = `<b>Everything off.</b> Nothing absorbs infrared, so the ground drops to Tₑ, about ${r(floor)} K: the first run, and about ${r(total)} K of greenhouse warming in all.
+      Yet the seven single effects add up to ${sum.toFixed(1)} K, which would leave the ground at ${r(Tv - sum)} K, below Tₑ. Impossible: the effects overlap, so they don't add up.`;
+    else html = `Table 2 gives one species at a time, so for this combination the model would have to be run again. What is certain: the surface cools by
+      <b>at least ${big} K</b> (the largest single effect: taking more absorbers away only lowers the opacity) and <b>at most about ${r(total)} K</b>, which would leave the ground at Tₑ.
+      So it ends up between ${r(lo)} and ${r(hi)} K. The plain sum, −${sum.toFixed(1)} K, ${Tv - sum < floor
+        ? `would put it at ${r(Tv - sum)} K, below Tₑ: impossible.`
+        : `is not the answer either.`} Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.`;
+    $("gasV").innerHTML = html;
+  }
+
+  function drawRange(Tv, floor, lo, hi, naive) {
+    const svg = $("range"); svg.innerHTML = "";
+    const narrow = (svg.parentElement.clientWidth || 480) < 420;
+    const W = narrow ? 330 : 480, L = 12, R = 12, yA = 48, fs = narrow ? 12 : 11;
+    svg.setAttribute("viewBox", `0 0 ${W} 96`);
+    const X = t => L + (W - L - R) * t / 750;
+    el("line", { x1: X(0), x2: X(750), y1: yA, y2: yA, stroke: "#2a333d", "stroke-width": 2 }, svg);
+    for (let t = 0; t <= 700; t += 100) {
+      el("line", { x1: X(t), x2: X(t), y1: yA, y2: yA + 5, stroke: "#8b98a5" }, svg);
+      const last = narrow ? 600 : 700;
+      if (!narrow || t % 200 === 0) el("text", { x: X(t), y: yA + 19, fill: "#8b98a5", "font-size": fs, "text-anchor": "middle" }, svg, t === last ? `${t} K` : t);
+    }
+    el("line", { x1: X(floor), x2: X(floor), y1: yA - 26, y2: yA + 5, stroke: "#8b98a5", "stroke-dasharray": "3 3" }, svg);
+    el("text", { x: X(floor) - 4, y: yA - 30, fill: "#8b98a5", "font-size": fs, "text-anchor": "end" }, svg, narrow ? "Tₑ" : "Tₑ: nothing absorbs");
+    if (hi - lo > 0.5) {
+      el("rect", { x: X(lo), y: yA - 9, width: X(hi) - X(lo), height: 18, rx: 4, fill: "#f6ad55", "fill-opacity": 0.35, stroke: "#f6ad55" }, svg);
+      el("text", { x: Math.max(X(lo), 60), y: yA - 14, fill: "#f6ad55", "font-size": fs, "text-anchor": "start" }, svg, narrow ? "model result here" : "the model's answer is in here");
+    } else if (lo < Tv - 0.5) {
+      el("circle", { cx: X(lo), cy: yA, r: 7, fill: "#f6ad55" }, svg);
+      el("text", { x: X(lo), y: yA - 14, fill: "#f6ad55", "font-size": fs, "text-anchor": "middle" }, svg, `${lo.toFixed(0)} K`);
+    }
+    if (naive != null) {
+      el("line", { x1: X(naive), x2: X(naive), y1: yA - 12, y2: yA + 12, stroke: "#ff6b6b", "stroke-width": 3 }, svg);
+      el("text", { x: X(naive), y: yA + 36, fill: "#ff6b6b", "font-size": fs, "text-anchor": X(naive) < 60 ? "start" : "middle" }, svg, "plain sum");
+    }
+    el("circle", { cx: X(Tv), cy: yA, r: 6, fill: "#4fd1c5" }, svg);
+    el("text", { x: X(Tv), y: yA - 14, fill: "#4fd1c5", "font-size": fs, "text-anchor": "end" }, svg, "Venus");
   }
 
   document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; render(); }));
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { alb = +b.dataset.a; render(); }));
   $("h").addEventListener("input", () => { hGreen = +$("h").value; render(); });
-  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { render(); renderGases(); }, 120); });
+  $("gAllOn").addEventListener("click", () => { off.clear(); renderGases(); });
+  $("gAllOff").addEventListener("click", () => { GASES.forEach((_, i) => off.add(i)); renderGases(); });
   render(); renderGases();
 })();
 </script>

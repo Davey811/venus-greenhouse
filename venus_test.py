@@ -90,6 +90,9 @@ def main():
             f"Venus / Earth = {(runs[1][3] - runs[1][4]) / G_earth:.0f}", ""]
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
+    total = sum(d for _, d in REMOVE_ONE)
+    out += [f"  sum of the single effects {total:.1f} K, but everything off leaves the ground at Te: "
+            f"{T[0] - Te:.1f} K of warming in all -> the effects overlap, they don't add up"]
     print("\n".join(out))
     os.makedirs(os.path.join(BASE, "results"), exist_ok=True)
     with open(os.path.join(BASE, "results", "numbers.txt"), "w") as f:
