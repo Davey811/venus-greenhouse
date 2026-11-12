@@ -1,0 +1,31 @@
+absorbed sunlight (planet average)    149.6 W/m2
+effective temperature Te             226.63 K
+emission level (profile reaches Te)   70.97 km
+mean lapse rate                       7.167 K/km
+measured surface                      735.3 K
+ceiling, transparent air and nothing reflected: sigma T^4 = 650.3 W/m2 -> 327.3 K
+
+pressure only (air that doesn't absorb infrared)
+  ground  226.6 K (-46.5 C), emission height  0.00 km
+  Venus: absorbs  149.6 W/m2, sends to space  149.6 W/m2 -> balanced
+  ground: emits     149.6 W/m2 (  1.0 x what Venus absorbs,  0.2 x all sunlight reaching Venus)
+          sunlight absorbed     149.6 W/m2, must come back from the air         0.0 W/m2 ( 0.0%)
+  greenhouse effect G = ground emits - sent to space =      0.0 W/m2
+
+pressure + infrared absorbers (Te at the emission level)
+  ground  735.3 K (462.1 C), emission height 70.97 km
+  Venus: absorbs  149.6 W/m2, sends to space  149.6 W/m2 -> balanced
+  ground: emits   16575.6 W/m2 (110.8 x what Venus absorbs, 25.5 x all sunlight reaching Venus)
+          sunlight absorbed <=   17.0 W/m2, must come back from the air >=  16558.6 W/m2 (99.9%)
+  greenhouse effect G = ground emits - sent to space =  16426.1 W/m2
+
+Earth for comparison: G = 396 - 240.2 = 155.8 W/m2; Venus / Earth = 105
+
+Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
+  CO2     -422.7 K  ->  about 313 K
+  clouds  -142.8 K  ->  about 593 K
+  H2O     - 68.8 K  ->  about 667 K
+  OCS     - 12.0 K  ->  about 723 K
+  CO      -  3.3 K  ->  about 732 K
+  SO2     -  2.5 K  ->  about 733 K
+  HCl     -  1.5 K  ->  about 734 K

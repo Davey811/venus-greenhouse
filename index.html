@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Venus Test</title>
+<meta name="description" content="Is Venus hot because of pressure or because of the greenhouse effect? Two runs, an energy ledger, measured data and the published model.">
+<style>
+  :root {
+    --bg: #0f1419; --panel: #161d24; --line: #2a333d; --fg: #e7e9ea; --dim: #8b98a5;
+    --teal: #4fd1c5; --red: #ff6b6b; --amber: #f6ad55; --green: #68d391; --grey: #a0aec0;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 15.5px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 26px 16px 52px; }
+  h1 { font-size: 28px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--dim); margin: 0 0 20px; max-width: 780px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; margin-top: 16px; }
+  @media (max-width: 860px) { .grid, .grid2 { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+  .wide { margin-top: 16px; }
+  .card h2 { font-size: 14px; color: var(--dim); margin: 0 0 10px; font-weight: 600; }
+  .mode { display: grid; gap: 6px; margin-bottom: 12px; }
+  .mode button { background: transparent; color: var(--fg); border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 11px; font: inherit; font-size: 14.5px; cursor: pointer; text-align: left; line-height: 1.3; }
+  .mode button .k { display: block; font-size: 12.5px; color: var(--dim); margin-top: 2px; }
+  .mode button[aria-pressed="true"][data-m="pressure"] { border-color: var(--grey); box-shadow: inset 0 0 0 1px var(--grey); }
+  .mode button[aria-pressed="true"][data-m="greenhouse"] { border-color: var(--teal); box-shadow: inset 0 0 0 1px var(--teal); }
+  .mode button:hover { border-color: var(--dim); }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+  .explain { font-size: 14px; margin: 0 0 4px; }
+  label, .lab { display: block; font-size: 14px; margin: 12px 0 4px; font-weight: 600; }
+  label output { float: right; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; accent-color: var(--teal); }
+  .seg { display: flex; gap: 6px; }
+  .seg button { flex: 1; font: inherit; font-size: 13.5px; color: var(--fg); background: transparent; border: 1px solid var(--line);
+    border-radius: 8px; padding: 7px 8px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { border-color: var(--grey); background: #1e2730; }
+  .note { font-size: 12.5px; color: var(--dim); margin: 4px 0 0; }
+  .big { font-size: 34px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .bigcap { font-size: 13px; color: var(--dim); margin: 2px 0 6px; }
+  .eq { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; color: var(--dim); margin: 0 0 8px; }
+  svg { display: block; width: 100%; height: auto; }
+  svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; font-size: 14.5px; }
+  td { padding: 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:last-child { text-align: right; white-space: nowrap; padding-left: 12px; }
+  td small { color: var(--dim); font-size: 12.5px; }
+  tr.head td { color: var(--dim); font-size: 13px; font-weight: 600; border-bottom: none; padding-top: 12px; padding-left: 0; text-align: left; }
+  tr.head:first-child td { padding-top: 0; }
+  tr.total td { font-weight: 700; }
+  .ok { color: var(--green); }
+  .verdict { margin: 10px 0 0; font-size: 14.5px; }
+  .gases { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+  .gases button { font: inherit; font-size: 14px; color: var(--fg); background: transparent; border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 13px; cursor: pointer; }
+  .gases button[aria-pressed="true"] { background: #22303c; border-color: var(--amber); }
+  .bars { display: grid; gap: 7px; }
+  .bar { display: grid; grid-template-columns: 110px 1fr 66px; gap: 10px; align-items: center; font-size: 13.5px; }
+  .bar .t { height: 12px; background: #0b1015; border-radius: 6px; overflow: hidden; }
+  .bar .f { display: block; height: 100%; background: #4a5563; border-radius: 6px; }
+  .bar.on .f { background: var(--amber); }
+  .bar .n { text-align: right; font-variant-numeric: tabular-nums; color: var(--dim); }
+  .bar.on .n { color: var(--fg); font-weight: 700; }
+  .prose p, .prose li { max-width: 780px; }
+  .prose p { margin: 0 0 11px; }
+  ol.steps { margin: 0 0 6px; padding-left: 22px; }
+  ol.steps li { margin: 0 0 11px; }
+  q { color: #cfd6dc; font-style: italic; }
+  q::before { content: "\201C"; } q::after { content: "\201D"; }
+  .ref { color: var(--dim); font-size: 13px; white-space: nowrap; }
+  details { border-top: 1px solid var(--line); padding: 9px 0; }
+  details:first-of-type { border-top: none; padding-top: 2px; }
+  summary { cursor: pointer; font-weight: 600; }
+  details p { margin: 7px 0 0; max-width: 780px; }
+  a { color: var(--teal); }
+  footer { margin-top: 24px; color: var(--dim); font-size: 13px; }
+  footer p { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The Venus Test</h1>
+  <p class="sub">Venus's surface is at 735 K, hot enough to melt lead. Is that the 92 bar of pressure, or the greenhouse effect?
+  Same planet, same sunlight, same pressure, same lapse rate. Two runs, and an energy ledger that has to balance.</p>
+
+  <div class="grid">
+    <section class="card" aria-label="Runs">
+      <h2>Run</h2>
+      <div class="mode" role="group" aria-label="Run">
+        <button data-m="pressure" aria-pressed="false">Pressure only<span class="k">92 bar of air that doesn't absorb infrared</span></button>
+        <button data-m="greenhouse" aria-pressed="true">Pressure + infrared absorbers<span class="k">CO₂ above all, plus clouds and water vapour</span></button>
+      </div>
+      <p class="explain" id="explain"></p>
+      <div id="ctlP">
+        <span class="lab" id="albL">Sunlight reflected</span>
+        <div class="seg" role="group" aria-labelledby="albL">
+          <button data-a="0.77" aria-pressed="true">Venus, 77%</button>
+          <button data-a="0" aria-pressed="false">None at all</button>
+        </div>
+        <p class="note">With nothing reflected Venus absorbs all 650 W/m² that reach it, the most it could ever get.</p>
+      </div>
+      <div id="ctlG">
+        <label for="h">Emission height <output id="hO"></output></label>
+        <input id="h" type="range" min="1" max="80" step="0.1" value="71">
+        <p class="note">More absorbing gas, higher emission level. Venus's measured profile reaches Tₑ at 71 km, near the cloud tops.</p>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Result">
+      <div class="big" id="ts"></div>
+      <p class="bigcap" id="tsC"></p>
+      <p class="eq" id="eq"></p>
+      <svg id="chart" viewBox="0 0 640 430" role="img" aria-label="Temperature against altitude: model and measured Venus profile"></svg>
+    </section>
+  </div>
+
+  <div class="grid2">
+    <section class="card" aria-label="Energy ledger">
+      <h2>Energy ledger, per square metre, planet average</h2>
+      <table>
+        <tr class="head"><td colspan="2">Venus as a whole</td></tr>
+        <tr><td>Sunlight absorbed</td><td id="lIn"></td></tr>
+        <tr><td>Infrared sent to space <small id="lFrom"></small></td><td id="lOut"></td></tr>
+        <tr class="total"><td>Sent − absorbed</td><td id="lBal" class="ok"></td></tr>
+        <tr class="head"><td colspan="2">The ground</td></tr>
+        <tr><td>Infrared emitted by the ground, σT⁴</td><td id="lEmit"></td></tr>
+        <tr><td>Sunlight absorbed by the ground <small id="lSunN"></small></td><td id="lSun"></td></tr>
+        <tr class="total"><td>Must come back from the air</td><td id="lBack"></td></tr>
+        <tr class="head"><td colspan="2">Greenhouse effect</td></tr>
+        <tr class="total"><td>Ground's infrared that never reaches space <small>(emitted − sent to space)</small></td><td id="lG"></td></tr>
+        <tr><td>Earth, for comparison <small>(396 − 240)</small></td><td>156 W/m²</td></tr>
+      </table>
+      <p class="verdict" id="verdict"></p>
+    </section>
+
+    <section class="card" aria-label="Published model">
+      <h2>The published model: switch one absorber off</h2>
+      <p class="note" style="margin:0 0 8px">Bullock and Grinspoon's radiative-convective model of Venus, as reported by Taylor and Grinspoon (2009, Table 2):
+        how much the surface cools when one species is removed from the model's greenhouse calculation, with the planet's albedo
+        unchanged, even when the clouds are removed.</p>
+      <div class="gases" role="group" aria-label="Species" id="gases"></div>
+      <div class="bars" id="bars"></div>
+      <p class="verdict" id="gasV"></p>
+    </section>
+  </div>
+
+  <section class="card wide prose" aria-label="The argument">
+    <h2>The argument, step by step</h2>
+    <ol class="steps">
+      <li><b>Venus is in energy balance.</b> It absorbs about 150 W/m² of sunlight, averaged over the planet, and sends the same back to space as infrared.
+        Measurements by the Pioneer Venus Orbiter <q>confirmed that the planet is in overall energy balance to within the accuracy of the measurements</q>. <span class="ref">Taylor &amp; Grinspoon 2009, §2.4</span></li>
+      <li><b>Without infrared absorbers, the ground can't be warmer than 227 K.</b> If the air doesn't absorb infrared, it doesn't emit any either: the ground is the only thing that radiates, and all of its radiation escapes. So σT⁴, averaged over the ground, equals the 150 W/m² absorbed, and the ground sits at 227 K whatever the pressure, the winds, the convection or the lapse rate. A ground with hot and cold patches averages lower, not higher. Even if Venus reflected nothing, the limit would be 327 K.
+        <q>An airless body with the same albedo and heliocentric distance as Venus would reach radiative equilibrium at a mean surface temperature of only about 230 K.</q> <span class="ref">§2.4</span></li>
+      <li><b>The real ground is at 735 K, and its infrared doesn't get out.</b> At 735 K the ground emits about 16,600 W/m² of infrared, 110 times what Venus absorbs and 25 times all the sunlight that reaches Venus. Only 150 W/m² leave Venus. The other ~16,400 W/m² of the ground's infrared is absorbed by the air.
+        That is the greenhouse effect: <q>the infrared radiation energy trapped by atmospheric gases and clouds</q>. <span class="ref">Raval &amp; Ramanathan 1989</span>
+        On Earth the same difference is about 156 W/m² (396 − 240); on Venus it is about 100 times larger. This step doesn't depend on how energy moves inside the atmosphere, only on how much leaves the ground and how much leaves Venus.</li>
+      <li><b>The ground lives on what the air sends back.</b> <q>Enough sunlight diffuses through the cloud layers on Venus to provide about 17 W per m2 of average surface insolation</q>. <span class="ref">§2.4</span>
+        A ground that emits 16,600 W/m² and gets 17 W/m² from the Sun receives at least ~16,560 W/m² from the air above. Without the infrared trapped in step 3, the air would only have the ~130 W/m² of sunlight it absorbs itself to pass on, a hundred times too little.</li>
+      <li><b>The lapse rate fills in the shape.</b> The absorbed energy <q>must instead be raised by convection along an approximately adiabatic temperature-pressure profile to a level near the cloud tops where it can radiate to space</q>. <span class="ref">§2.4</span>
+        On Venus that level is about 71 km, where the air is at 227 K; below it the temperature rises by about 7.2 K per km: 227 + 7.17 × 71 = 735 K. The absorbers set the height, the lapse rate sets the slope.
+        This step explains the profile, it doesn't prove anything: the 71 km and the slope are read from the measured profile, so 735 K comes out by construction. The proof is in steps 1 to 4.</li>
+    </ol>
+  </section>
+
+  <section class="card wide prose" aria-label="Objections">
+    <h2>Objections</h2>
+    <details>
+      <summary>"Taylor and Grinspoon themselves say it's the mass of the atmosphere."</summary>
+      <p>They do: <q>the high surface temperature on Venus, is largely a consequence of the large mass of the atmosphere, rather than any mysterious thermal process</q> (§2.2). The same paper says how the mass works: <q>Most of the energy deposited at depth cannot escape as long-wave radiation</q> and has to be carried up to near the cloud tops before it can radiate to space (§2.4). A massive CO₂ atmosphere is a thick layer of infrared absorber, and that is what lifts the radiating level to 71 km. In the same paper, switching off CO₂'s absorption in the model cools the surface by 423 K (Table 2).</p>
+    </details>
+    <details>
+      <summary>"They also say Earth with 92 bar would be hot even without more greenhouse gas."</summary>
+      <p>The sentence is: <q>If the Earth had such a high surface pressure, it too would be extremely hot, even without the increased proportion of greenhouse gases that is found on Venus</q> (§2.2). With the same proportions, 92 times the air means 92 times the CO₂ above every square metre, and the higher pressure broadens the absorption lines: the absorber grows with the mass. What doesn't work is mass without absorbers, which is the first run: 227 K.</p>
+    </details>
+    <details>
+      <summary>"It's just the adiabatic lapse rate."</summary>
+      <p>The measured profile, in the paper's words, <q>roughly follows the hydrostatic and adiabatic formulae</q> (§2.2). The lapse rate says how much warmer the ground is than the level that radiates to space; it doesn't say where that level is. With no absorbers that level is the ground itself, and the ground sits at 227 K.</p>
+    </details>
+    <details>
+      <summary>"Compression heats the gas."</summary>
+      <p>Compressing a gas warms it while it is being compressed: the work done is pressure times the change in volume. Venus's atmosphere isn't being compressed. A pressure that doesn't change does no work, while the ground radiates away 16,600 joules per square metre every second.</p>
+    </details>
+    <details>
+      <summary>"Venus is closer to the Sun."</summary>
+      <p>Venus reflects about 76% of the sunlight it receives and absorbs less than Earth: the paper gives equilibrium temperatures <q>of about 230 K for Venus and 250 K for Earth</q> (§2.4). Even if Venus reflected nothing, a ground that radiates freely to space couldn't average more than 327 K. Try it in the first run.</p>
+    </details>
+    <details>
+      <summary>"The heat comes from the interior, from volcanoes."</summary>
+      <p><q>Interior heat release cannot, in any case, be the dominant influence in surface temperature, because of the constraints placed by the energy balance measurements</q> (§2.4). What leaves Venus matches the sunlight it absorbs.</p>
+    </details>
+    <details>
+      <summary>"The first run is unrealistic: no gas at 92 bar is transparent in the infrared."</summary>
+      <p>Right, and that absorption is the greenhouse effect. The first run is the control: same mass, same sunlight, no infrared absorption. Whatever the real air adds on top of it, it adds by absorbing infrared.</p>
+    </details>
+    <details>
+      <summary>"The air could give the heat back by convection, not by radiation."</summary>
+      <p>It doesn't matter how the energy gets back to the ground. The ground sends out 16,600 W/m² as infrared and only 150 W/m² leave Venus, so the rest is absorbed by the air. Air that absorbs the ground's infrared is the greenhouse effect, whatever happens next. And on Venus convection carries energy up, not down: it is <q>raised by convection</q> towards the cloud tops (§2.4).</p>
+    </details>
+    <details>
+      <summary>"You tuned the second run to give 735 K."</summary>
+      <p>Yes: its height and slope are read from the measured profile, so it matches Venus by construction. It is there to show the shape, not to prove the greenhouse effect. The proof doesn't use it: it uses the ground's temperature, the energy that leaves Venus and the sunlight that reaches the ground, all measured.</p>
+    </details>
+    <details>
+      <summary>"Only 17 W/m² of sunlight reaches the ground. How can it be the greenhouse effect?"</summary>
+      <p>That's the strongest evidence for it. 17 W/m² of sunlight can't keep up a ground that emits 16,600 W/m². Almost all of the energy the ground receives arrives as infrared from the air above.</p>
+    </details>
+  </section>
+
+  <footer>
+    <p><b>Sources.</b> F. W. Taylor and D. H. Grinspoon (2009), <i>Climate evolution of Venus</i>, J. Geophys. Res. 114, E00B40,
+      <a href="https://doi.org/10.1029/2008JE003316">doi:10.1029/2008JE003316</a>: quotes from §2.2 and §2.4, Table 2 in §4.6.
+      M. A. Bullock and D. H. Grinspoon (2001), Icarus 150, 19–37, <a href="https://doi.org/10.1006/icar.2000.6570">doi:10.1006/icar.2000.6570</a> (the model behind Table 2).
+      Venus International Reference Atmosphere (Seiff et al. 1985), as tabulated by T. Balint, JPL (IPPW-6, 2008).
+      NASA Venus Fact Sheet: solar irradiance 2601.3 W/m², Bond albedo 0.77, black-body temperature 226.6 K.
+      A. Raval and V. Ramanathan (1989), <i>Observational determination of the greenhouse effect</i>, Nature 342, <a href="https://doi.org/10.1038/342758a0">doi:10.1038/342758a0</a> (the definition, from the abstract).
+      Earth: surface emission about 396 W/m², K. E. Trenberth and J. T. Fasullo (2012), Surv. Geophys. 33, 413–426, <a href="https://doi.org/10.1007/s10712-011-9150-2">doi:10.1007/s10712-011-9150-2</a>; 240 W/m² to space = sunlight absorbed, 1361 × (1 − 0.294) / 4 (NASA Earth Fact Sheet).</p>
+    <p><b>Method.</b> Sunlight absorbed: 2601.3 × (1 − albedo) / 4. Lapse rate: (735.3 − 226.6) K / 71.0 km = 7.17 K/km, the mean of the measured profile from the ground to the level where it reaches Tₑ.
+      The ground is treated as black in the infrared; rock is close to it (an emissivity of 0.9 would turn 227 K into 233 K).
+      Greenhouse effect: infrared emitted by the ground minus infrared sent to space.
+      "Must come back from the air" is what the ground emits minus the sunlight it absorbs; any heat the air's motions carry away from the ground only adds to it.
+      The slider keeps today's 17 W/m² at the ground for every height. This is a test of energy bookkeeping, not a climate model: the full calculation is the published model.</p>
+    <p>by <a href="https://x.com/splugged">@splugged</a></p>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const SIGMA = 5.670374419e-8, S = 2601.3, A = 0.77, SUN_GROUND = 17;
+  const Q = S * (1 - A) / 4;                       // 149.6 W/m², planet average
+  const TE = Math.pow(Q / SIGMA, 0.25);            // 226.6 K
+  const VZ = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80];
+  const VT = [735.3, 696.8, 658.2, 620.8, 580.7, 539.2, 496.9, 455.5, 417.6, 385.4, 350.5, 302.3, 262.8, 229.8, 197.1];
+  const ZE = 70.98, G = (VT[0] - TE) / ZE;         // emission level, mean lapse rate
+  const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
+  const $ = id => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  let mode = "greenhouse", gas = 0, hGreen = ZE, alb = A;
+
+  const fmtW = w => `${Math.round(w).toLocaleString("en-US")} W/m²`;
+  const K = t => `${t.toFixed(0)} K (${(t - 273.15).toFixed(0)} °C)`;
+
+  function state() {
+    if (mode === "pressure") {
+      const q = S * (1 - alb) / 4;
+      return { q, Ts: Math.pow(q / SIGMA, 0.25), h: 0, sunGround: q };
+    }
+    return { q: Q, Ts: TE + G * hGreen, h: hGreen, sunGround: SUN_GROUND };
+  }
+
+  function el(tag, attrs, parent, text) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    parent.appendChild(e); return e;
+  }
+
+  function drawChart(st) {
+    const svg = $("chart"); svg.innerHTML = "";
+    const narrow = (svg.parentElement.clientWidth || 640) < 520;
+    const W = narrow ? 380 : 640, H = narrow ? 400 : 430, L = narrow ? 44 : 56, R = 12, T0 = 14, B = 42;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const xmin = 150, xmax = 750, zmax = 80;
+    const X = t => L + (W - L - R) * (t - xmin) / (xmax - xmin), Y = z => T0 + (H - T0 - B) * (1 - z / zmax);
+    for (let t = 200; t <= 700; t += 100) {
+      el("line", { x1: X(t), x2: X(t), y1: T0, y2: H - B, stroke: "#2a333d" }, svg);
+      el("text", { x: X(t), y: H - B + 17, fill: "#8b98a5", "font-size": 12, "text-anchor": "middle" }, svg, t);
+    }
+    for (let z = 0; z <= zmax; z += 10) {
+      el("line", { x1: L, x2: W - R, y1: Y(z), y2: Y(z), stroke: "#2a333d" }, svg);
+      el("text", { x: L - 8, y: Y(z) + 4, fill: "#8b98a5", "font-size": 12, "text-anchor": "end" }, svg, z);
+    }
+    el("text", { x: (L + W - R) / 2, y: H - 6, fill: "#8b98a5", "font-size": 12.5, "text-anchor": "middle" }, svg, "temperature (K)");
+    el("text", { x: 13, y: (T0 + H - B) / 2, fill: "#8b98a5", "font-size": 12.5, "text-anchor": "middle", transform: `rotate(-90 13 ${(T0 + H - B) / 2})` }, svg, "altitude (km)");
+    el("line", { x1: X(TE), x2: X(TE), y1: T0, y2: H - B, stroke: "#8b98a5", "stroke-dasharray": "4 4" }, svg);
+    el("text", { x: X(TE) + 6, y: T0 + 13, fill: "#8b98a5", "font-size": 12 }, svg, `Tₑ = ${TE.toFixed(1)} K`);
+    el("line", { x1: X(600.6), x2: X(600.6), y1: Y(0), y2: Y(6), stroke: "#8b98a5", "stroke-width": 1 }, svg);
+    el("text", { x: X(600.6), y: Y(8), fill: "#8b98a5", "font-size": 11.5, "text-anchor": "middle" }, svg, "lead melts");
+    el("polyline", { points: VZ.map((z, i) => `${X(VT[i])},${Y(z)}`).join(" "), fill: "none", stroke: "#e7e9ea", "stroke-opacity": 0.45, "stroke-width": 2.4 }, svg);
+    el("text", { x: X(VT[8]) - 10, y: Y(VZ[8]) + 4, fill: "#8b98a5", "font-size": 12, "text-anchor": "end" }, svg, narrow ? "measured" : "measured (VIRA)");
+    const col = mode === "pressure" ? "#a0aec0" : "#4fd1c5";
+    if (st.h > 0) {
+      el("line", { x1: X(TE), y1: Y(st.h), x2: X(st.Ts), y2: Y(0), stroke: col, "stroke-width": 3 }, svg);
+      el("circle", { cx: X(TE), cy: Y(st.h), r: 6, fill: col }, svg);
+      el("text", { x: X(TE) + 12, y: Y(st.h) - 9, fill: col, "font-size": 12.5, "paint-order": "stroke", stroke: "#161d24", "stroke-width": 4 }, svg,
+        `radiates to space from ${st.h.toFixed(1)} km`);
+    }
+    el("circle", { cx: X(st.Ts), cy: Y(0), r: 8, fill: col, stroke: "#161d24", "stroke-width": 2 }, svg);
+    const right = X(st.Ts) > W - 120;
+    el("text", { x: X(st.Ts) + (right ? -14 : 12), y: right ? Y(0) + 4 : Y(0) - 12, fill: col, "font-size": 13, "font-weight": 700,
+      "text-anchor": right ? "end" : "start", "paint-order": "stroke", stroke: "#161d24", "stroke-width": 4 }, svg, `ground ${st.Ts.toFixed(0)} K`);
+  }
+
+  function render() {
+    const st = state(), emit = SIGMA * st.Ts ** 4, back = emit - st.sunGround;
+    const col = mode === "pressure" ? "var(--grey)" : "var(--teal)";
+    $("ts").textContent = K(st.Ts); $("ts").style.color = col;
+    $("tsC").textContent = `Ground temperature in this run. Measured on Venus: ${K(VT[0])}.`;
+    $("eq").textContent = mode === "pressure"
+      ? `σT⁴ = ${st.q.toFixed(1)} W/m²  →  T = ${st.Ts.toFixed(1)} K`
+      : `Tₑ + Γ × h = ${TE.toFixed(1)} + ${G.toFixed(2)} × ${st.h.toFixed(1)} = ${st.Ts.toFixed(1)} K`;
+    $("lIn").textContent = fmtW(st.q);
+    $("lOut").textContent = fmtW(st.q);
+    $("lFrom").textContent = mode === "pressure" ? "from the ground" : `from about ${st.h.toFixed(0)} km`;
+    $("lBal").textContent = "0 W/m²";
+    $("lEmit").textContent = fmtW(emit);
+    $("lSun").textContent = mode === "pressure" ? fmtW(st.sunGround) : `≤ ${fmtW(st.sunGround)}`;
+    $("lSunN").textContent = mode === "pressure" ? "(all of Venus's share: the air is clear)" : "(what reaches it, measured)";
+    $("lBack").textContent = mode === "pressure" ? "0 W/m²" : `≥ ${fmtW(back)}`;
+    $("lG").textContent = fmtW(emit - st.q);
+    $("explain").textContent = mode === "pressure"
+      ? "Same 92 bar, same lapse rate, but the air neither absorbs nor emits infrared. The ground radiates straight to space."
+      : "The air absorbs the ground's infrared and sends most of it back down; only the air near the top radiates to space. Move the emission height. At 71 km, with the measured slope, the run matches Venus by construction: the proof is in the ledger.";
+    $("verdict").innerHTML = mode === "pressure"
+      ? (alb > 0
+        ? `<span class="ok"><b>Balanced at ${st.Ts.toFixed(0)} K</b></span>, the paper's "about 230 K" for an airless Venus, and 509 K colder than the real one. Pressure can arrange the air above; it can't make the ground send more to space than Venus absorbs.`
+        : `<span class="ok"><b>Balanced at ${st.Ts.toFixed(0)} K.</b></span> Every photon from the Sun absorbed, nothing reflected, and the ground is still ${(VT[0] - st.Ts).toFixed(0)} K colder than Venus. This is the ceiling for a ground that radiates freely to space.`)
+      : `<span class="ok"><b>Balanced.</b></span> The ground emits ${fmtW(emit)}, but only ${fmtW(Q)} leave Venus, from ${st.h.toFixed(0)} km: the air traps the other ${fmtW(emit - Q)}. About 17 W/m² of sunlight reaches the ground, so at least ${fmtW(back)} has to come back to it from the air.`;
+    $("ctlP").hidden = mode !== "pressure"; $("ctlG").hidden = mode !== "greenhouse";
+    $("h").value = hGreen; $("hO").textContent = `${hGreen.toFixed(1)} km`;
+    document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === mode)));
+    document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.a === alb)));
+    drawChart(st);
+  }
+
+  function renderGases() {
+    const max = GASES[0][1];
+    $("gases").innerHTML = ""; $("bars").innerHTML = "";
+    GASES.forEach(([n, d], i) => {
+      const b = document.createElement("button"); b.textContent = `Switch off ${n}`; b.setAttribute("aria-pressed", String(i === gas));
+      b.onclick = () => { gas = i; renderGases(); }; $("gases").appendChild(b);
+      const row = document.createElement("div"); row.className = "bar" + (i === gas ? " on" : "");
+      row.innerHTML = `<span>${n}</span><span class="t"><span class="f" style="width:${Math.max(1.5, 100 * d / max)}%"></span></span><span class="n">−${d} K</span>`;
+      $("bars").appendChild(row);
+    });
+    const [n, d] = GASES[gas];
+    $("gasV").innerHTML = `Switch off the ${n} in the greenhouse calculation and the model's surface cools by <b>${d} K</b>, to roughly ${(VT[0] - d).toFixed(0)} K. One species at a time: the values don't add up.`;
+  }
+
+  document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; render(); }));
+  document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { alb = +b.dataset.a; render(); }));
+  $("h").addEventListener("input", () => { hGreen = +$("h").value; render(); });
+  let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 120); });
+  render(); renderGases();
+})();
+</script>
+</body>
+</html>
