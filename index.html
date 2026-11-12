@@ -34,6 +34,7 @@
   label, .lab { display: block; font-size: 14px; margin: 12px 0 4px; font-weight: 600; }
   label output { float: right; color: var(--dim); font-weight: 400; font-variant-numeric: tabular-nums; }
   input[type=range] { width: 100%; accent-color: var(--teal); }
+  input[type=range]:disabled { opacity: 0.35; cursor: not-allowed; }
   .seg { display: flex; gap: 6px; }
   .seg button { flex: 1; font: inherit; font-size: 13.5px; color: var(--fg); background: transparent; border: 1px solid var(--line);
     border-radius: 8px; padding: 7px 8px; cursor: pointer; }
@@ -106,6 +107,9 @@
           <button data-a="0" aria-pressed="false">None at all</button>
         </div>
         <p class="note">With nothing reflected Venus absorbs all 650 W/m² that reach it, the most it could ever get.</p>
+        <label for="h0">Emission height <output>0 km, fixed</output></label>
+        <input id="h0" type="range" min="0" max="80" value="0" disabled>
+        <p class="note">Nothing in the air can radiate: air that doesn't absorb infrared doesn't emit it either, so the ground is the only thing radiating to space. Raising the emission height means adding absorbers, and that is the second run.</p>
       </div>
       <div id="ctlG">
         <label for="h">Emission height <output id="hO"></output></label>
