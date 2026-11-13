@@ -82,6 +82,15 @@
   summary { cursor: pointer; font-weight: 600; }
   details p { margin: 7px 0 0; max-width: 780px; }
   a { color: var(--teal); }
+  .eqwrap { overflow-x: auto; }
+  table.eqt { min-width: 640px; font-size: 14px; }
+  table.eqt th { text-align: left; color: var(--dim); font-weight: 600; font-size: 13px; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+  table.eqt td { text-align: left; white-space: normal; padding: 9px 10px 9px 0; }
+  table.eqt td:first-child { width: 34%; }
+  table.eqt .f { display: block; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12.5px; color: var(--dim); }
+  table.eqt .m { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 13px; }
+  table.eqt tr.rule td { background: rgba(255,107,107,0.07); }
+  .bad { color: var(--red); font-weight: 700; }
   footer { margin-top: 24px; color: var(--dim); font-size: 13px; }
   footer p { margin: 0 0 6px; }
 </style>
@@ -174,6 +183,40 @@
         On Venus that level is about 71 km, where the air is at 225 K; below it the temperature rises by about 7.1 K per km: 225.30 + 7.145 × 71.38 = 735.3 K. The absorbers set the height, the lapse rate sets the slope.
         This step explains the profile, it doesn't prove anything: the 71 km and the slope are read from the measured profile, so 735 K comes out by construction. The proof is in steps 1 to 4.</li>
     </ol>
+  </section>
+
+  <section class="card wide prose" aria-label="The explicit equations">
+    <h2>The explicit equations</h2>
+    <p>The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.</p>
+    <div class="eqwrap">
+    <table class="eqt">
+      <tr><th></th><th>Earth</th><th>Venus</th></tr>
+      <tr><td><b>1. Energy balance</b><span class="f">σT<sub>e</sub><sup>4</sup> = S (1 − A) / 4</span></td>
+        <td class="m">1361 × 0.706 / 4 = 240.2 W/m²<br>T<sub>e</sub> = 255.12 K</td>
+        <td class="m">2601.3 × 0.23 / 4 = 149.6 W/m²<br>T<sub>e</sub> = 226.63 K</td></tr>
+      <tr><td><b>2. Emission sphere, radius R + z<sub>e</sub></b><span class="f">T<sub>em</sub> = T<sub>e</sub> (R / (R + z<sub>e</sub>))<sup>½</sup></span></td>
+        <td class="m">255.02 K <span class="f">R = 6371.0 km</span></td>
+        <td class="m">225.30 K <span class="f">R = 6051.8 km</span></td></tr>
+      <tr><td><b>3. Emission height: the absorbers</b><span class="f">τ(z<sub>e</sub>) = 1 → z<sub>e</sub> = H ln τ<sub>0</sub><br>measured where T(z) = T<sub>em</sub></span></td>
+        <td class="m">5.097 km</td>
+        <td class="m">71.38 km</td></tr>
+      <tr><td><b>4. Lapse rate: thermodynamics</b><span class="f">dT/dz = −g / c<sub>p</sub>, measured mean</span></td>
+        <td class="m">6.5 K/km</td>
+        <td class="m">7.145 K/km</td></tr>
+      <tr><td><b>5. Ground</b><span class="f">T<sub>s</sub> = T<sub>em</sub> + Γ z<sub>e</sub></span></td>
+        <td class="m">255.02 + 6.5 × 5.097 = <span class="ok">288.15 K</span><span class="f">measured 288.15 K</span></td>
+        <td class="m">225.30 + 7.145 × 71.38 = <span class="ok">735.3 K</span><span class="f">measured 735.3 K</span></td></tr>
+      <tr class="rule"><td><b>The middle-of-the-mass rule</b><span class="f">T<sub>s</sub> = T<sub>e</sub> + Γ z<sub>half</sub>, half of the air's mass above z<sub>half</sub></span></td>
+        <td class="m">255.12 + 6.5 × 5.477 = 290.72 K<span class="f">off by <span class="bad">−2.57 K</span></span></td>
+        <td class="m">226.63 + 7.145 × 10.40 = 300.94 K<span class="f">off by <span class="bad">+434.4 K</span></span></td></tr>
+      <tr><td><b>6. Without absorbers</b><span class="f">τ<sub>0</sub> &lt; 1 → z<sub>e</sub> = 0 → T<sub>s</sub> = T<sub>e</sub></span></td>
+        <td class="m">255.1 K</td>
+        <td class="m">226.6 K <span class="f">the whole residual belongs to the absorbers</span></td></tr>
+    </table>
+    </div>
+    <p class="note" style="margin-top:10px">First Law: if z<sub>e</sub> rises, less power leaves than arrives, and dU/dt = P<sub>in</sub> − P<sub>out</sub> &gt; 0 until the ground has warmed by Γ Δz<sub>e</sub>.
+      Earth: U.S. Standard Atmosphere 1976, 288.15 K at the surface and 6.5 K/km in the troposphere, pressure from the hydrostatic equation (half the mass above 5.48 km); NASA Earth Fact Sheet, solar irradiance 1361 W/m², Bond albedo 0.294. Venus: VIRA, half the mass above 10.40 km.
+      The emission heights are read from the measured profiles; computing them from the spectra is what the published model in the panel above does.</p>
   </section>
 
   <section class="card wide prose" aria-label="Objections">

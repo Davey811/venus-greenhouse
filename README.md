@@ -55,6 +55,24 @@ One species at a time: the values are not additive. On the page you can switch o
 - it cools by **at most** about 509 K (735 − 227), which would leave the ground at T_e: with nothing absorbing infrared and the albedo fixed, that is where the first run sits;
 - the plain sum of the single effects is not the answer. With everything switched off it comes to 653.6 K, which would leave the ground at 82 K, below T_e: impossible. Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.
 
+## The explicit equations
+
+The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.
+
+| | Earth | Venus |
+|---|---|---|
+| 1. Energy balance: σT_e⁴ = S (1 − A) / 4 | 1361 × 0.706 / 4 = 240.2 W/m², T_e = 255.12 K | 2601.3 × 0.23 / 4 = 149.6 W/m², T_e = 226.63 K |
+| 2. Emission sphere: T_em = T_e (R / (R + z_e))^½ | 255.02 K (R = 6371.0 km) | 225.30 K (R = 6051.8 km) |
+| 3. Emission height, set by the absorbers: τ(z_e) = 1, z_e = H ln τ₀; measured where T(z) = T_em | 5.097 km | 71.38 km |
+| 4. Lapse rate, set by thermodynamics: dT/dz = −g / c_p, measured mean | 6.5 K/km | 7.145 K/km |
+| 5. Ground: T_s = T_em + Γ z_e | 255.02 + 6.5 × 5.097 = **288.15 K** (measured 288.15 K) | 225.30 + 7.145 × 71.38 = **735.3 K** (measured 735.3 K) |
+| Middle-of-the-mass rule: T_s = T_e + Γ z_half | 255.12 + 6.5 × 5.477 = 290.72 K, off by −2.57 K | 226.63 + 7.145 × 10.40 = 300.94 K, off by **+434.4 K** |
+| 6. Without absorbers: τ₀ < 1, z_e = 0, T_s = T_e | 255.1 K | 226.6 K: the whole residual belongs to the absorbers |
+
+First Law: if z_e rises, less power leaves than arrives, and dU/dt = P_in − P_out > 0 until the ground has warmed by Γ Δz_e.
+
+Earth: U.S. Standard Atmosphere 1976 (288.15 K at the surface, 6.5 K/km in the troposphere, pressure from the hydrostatic equation, so half the mass lies above 5.48 km) and the NASA Earth Fact Sheet (1361 W/m², Bond albedo 0.294). Venus: VIRA, half the mass above 10.40 km. The emission heights are read from the measured profiles; computing them from the spectra is what the published model above does.
+
 ## Objections
 
 **"Taylor and Grinspoon themselves say it's the mass of the atmosphere."**
@@ -123,5 +141,6 @@ python3 venus_test.py
 - A. Raval and V. Ramanathan (1989), *Observational determination of the greenhouse effect*, Nature 342, doi:[10.1038/342758a0](https://doi.org/10.1038/342758a0). The definition quoted above is from the abstract.
 - K. E. Trenberth and J. T. Fasullo (2012), *Tracking Earth's energy: from El Niño to global warming*, Surv. Geophys. 33, 413–426, doi:[10.1007/s10712-011-9150-2](https://doi.org/10.1007/s10712-011-9150-2). Earth's surface emission, about 396 W/m².
 - NASA NSSDC Earth Fact Sheet: https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html (solar irradiance 1361 W/m², Bond albedo 0.294).
+- U.S. Standard Atmosphere 1976 (surface temperature and tropospheric lapse rate; pressures from the hydrostatic equation).
 
 Code under the MIT licence. Made with Python by [@splugged](https://x.com/splugged).

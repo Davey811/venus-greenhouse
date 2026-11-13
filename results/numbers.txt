@@ -21,6 +21,13 @@ pressure + infrared absorbers (radiating from the emission level)
 
 Earth for comparison: G = 396 - 240.2 = 155.8 W/m2; Venus / Earth = 105
 
+Explicit equations: T_s = T_em + Gamma x z_e
+  Earth: 255.02 + 6.5 x 5.097 = 288.15 K (measured 288.15 K)
+  Venus: 225.30 + 7.145 x 71.38 = 735.30 K (measured 735.3 K)
+Middle-of-the-mass rule: T_s = T_e + Gamma x z_half
+  Earth: 255.12 + 6.5 x 5.48 = 290.72 K, off by -2.57 K
+  Venus: 226.63 + 7.145 x 10.40 = 300.94 K, off by +434.4 K
+
 Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
   CO2     -422.7 K  ->  about 313 K
   clouds  -142.8 K  ->  about 593 K

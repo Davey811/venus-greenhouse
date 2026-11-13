@@ -94,6 +94,26 @@ def main():
     G_earth = EARTH_SURFACE_LW - EARTH_OLR
     out += [f"Earth for comparison: G = {EARTH_SURFACE_LW:.0f} - {EARTH_OLR:.1f} = {G_earth:.1f} W/m2; "
             f"Venus / Earth = {(runs[1][3] - runs[1][4]) / G_earth:.0f}", ""]
+    # explicit equations, Earth alongside Venus, and the middle-of-the-mass rule
+    T0_E, L_E, R_E = 288.15, 6.5, 6371.0                     # U.S. Standard Atmosphere 1976, Earth radius
+    Te_E = (1361 * (1 - 0.294) / 4 / SIGMA) ** 0.25           # NASA Earth Fact Sheet
+    expo = 9.80665 * 0.0289644 / (8.3144598 * 0.0065)        # hydrostatic exponent of the 1976 troposphere
+    zhalf_E = (T0_E - T0_E * 0.5 ** (1 / expo)) / L_E         # half of the mass above
+    ze_E = 5.0
+    for _ in range(60):
+        ze_E = (T0_E - Te_E * (R_E / (R_E + ze_E)) ** 0.5) / L_E
+    Tem_E = Te_E * (R_E / (R_E + ze_E)) ** 0.5
+    zhalf_V = 10.40                                           # VIRA: half of the mass above (see slope-and-height)
+    rule_E, rule_V = Te_E + L_E * zhalf_E, Te + gamma * zhalf_V
+    out += [
+        "Explicit equations: T_s = T_em + Gamma x z_e",
+        f"  Earth: {Tem_E:.2f} + {L_E} x {ze_E:.3f} = {Tem_E + L_E * ze_E:.2f} K (measured {T0_E} K)",
+        f"  Venus: {T_em(ze):.2f} + {gamma:.3f} x {ze:.2f} = {T_em(ze) + gamma * ze:.2f} K (measured {T[0]} K)",
+        "Middle-of-the-mass rule: T_s = T_e + Gamma x z_half",
+        f"  Earth: {Te_E:.2f} + {L_E} x {zhalf_E:.2f} = {rule_E:.2f} K, off by {T0_E - rule_E:+.2f} K",
+        f"  Venus: {Te:.2f} + {gamma:.3f} x {zhalf_V:.2f} = {rule_V:.2f} K, off by {T[0] - rule_V:+.1f} K",
+        "",
+    ]
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
     total = sum(d for _, d in REMOVE_ONE)
