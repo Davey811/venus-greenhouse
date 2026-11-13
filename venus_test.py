@@ -144,6 +144,17 @@ def main():
         f"  d lnT / d lnp: radiative 0.25, adiabat R/cp = {188.9 / 1100:.3f}, measured 0-10 km {slope:.3f}",
         "",
     ]
+    # if compression paid the bill: gravitational energy of the column, and the sinking speed needed
+    E = sum((zz[i + 1] - zz[i]) * 1e3 / np.log(pp[i] / pp[i + 1]) * (pp[i] - pp[i + 1]) * 1e5
+            for i in range(len(zz) - 1) if zz[i + 1] <= 80)
+    E += float(np.interp(80, zz, pp)) * 1e5 * 4.7e3        # above 80 km
+    bill = SIGMA * T[0] ** 4 - SUN_AT_GROUND
+    out += [
+        "If compression paid the bill:",
+        f"  ground's bill {bill:.0f} W/m2 -> sinking speed {bill / (pp[0] * 1e5) * 1e3:.2f} mm/s = {bill / (pp[0] * 1e5) * 3.156e7 / 1e3:.0f} km/yr",
+        f"  gravitational energy of the atmosphere {E / 1e9:.0f} GJ/m2, centre of mass {E / (pp[0] * 1e5) / 1e3:.1f} km, lasts {E / bill / 86400:.0f} days",
+        "",
+    ]
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
     total = sum(d for _, d in REMOVE_ONE)

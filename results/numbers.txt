@@ -37,6 +37,10 @@ Radiation only (Eddington grey atmosphere, no convection):
   ground T = Te (3 tau0/4 + 1/2)^(1/4) = 1603 K (measured 735.3 K)
   d lnT / d lnp: radiative 0.25, adiabat R/cp = 0.172, measured 0-10 km 0.167
 
+If compression paid the bill:
+  ground's bill 16559 W/m2 -> sinking speed 1.80 mm/s = 57 km/yr
+  gravitational energy of the atmosphere 125 GJ/m2, centre of mass 13.6 km, lasts 88 days
+
 Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
   CO2     -422.7 K  ->  about 313 K
   clouds  -142.8 K  ->  about 593 K

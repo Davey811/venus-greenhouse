@@ -91,6 +91,8 @@
   a { color: var(--teal); }
   .eqwrap { overflow-x: auto; }
   table.fltab { margin-top: 6px; }
+  #reportList { font-size: 13px; align-self: center; margin-left: 6px; }
+  ul.corr { margin: 0; padding-left: 20px; font-size: 14px; }
   .gtools button[aria-pressed="true"] { color: var(--fg); border-style: solid; border-color: var(--teal); }
   #fl { margin-top: 6px; }
   table.eqt { min-width: 640px; font-size: 14px; }
@@ -216,6 +218,19 @@
     <p class="note" style="margin-top:8px">Rough time scale: the whole atmosphere warms together at a fixed lapse rate, with heat capacity C = (p₀ / g) × c<sub>p</sub> = (9.21 × 10⁶ Pa / 8.87 m/s²) × 1.1 kJ/(kg·K) ≈ 1.1 × 10⁹ J/(m²·K), c<sub>p</sub> of CO₂ at 600–700 K (Çengel and Cimbala, Table A-10). The end state does not depend on C; only the timing does.</p>
   </section>
 
+  <section class="card wide prose" aria-label="If compression paid the bill">
+    <h2>If compression paid the bill</h2>
+    <p>Suppose there were no greenhouse effect and the ground were kept at 735 K by compression. The ground loses <b id="cmBill"></b> more than the sunlight that reaches it, every second. Compression can supply that only while the air is actually being compressed: gravity does work as the column sinks, at a rate p₀ × v per square metre.</p>
+    <table class="fltab">
+      <tr><td>The air would have to sink at</td><td id="cmV"></td></tr>
+      <tr><td>That is, every year</td><td id="cmY"></td></tr>
+      <tr><td>Gravitational energy of the whole atmosphere, ∫ p dz</td><td id="cmE"></td></tr>
+      <tr><td>Its centre of mass sits at</td><td id="cmZ"></td></tr>
+      <tr><td>All of it would pay the ground's bill for</td><td id="cmD"></td></tr>
+    </table>
+    <p class="note" style="margin-top:8px">A static atmosphere does no work: compression heats only while it lasts. Energy from the VIRA profile (log-linear between levels, the column above 80 km added with a 4.7 km scale height); the bill is σT⁴ at 735.3 K minus the 17 W/m² of sunlight at the ground.</p>
+  </section>
+
   <section class="card wide prose" aria-label="The explicit equations">
     <h2>The explicit equations</h2>
     <p>The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.</p>
@@ -266,7 +281,7 @@
     </details>
     <details>
       <summary>"Compression heats the gas."</summary>
-      <p>Compressing a gas warms it while it is being compressed: the work done is pressure times the change in volume. Venus's atmosphere isn't being compressed. A pressure that doesn't change does no work, while the ground radiates away 16,600 joules per square metre every second.</p>
+      <p>Compressing a gas warms it while it is being compressed: the work done is pressure times the change in volume. Venus's atmosphere isn't being compressed. A pressure that doesn't change does no work, while the ground radiates away 16,600 joules per square metre every second. To pay that by compression the air would have to sink by about 57 km a year, and the whole gravitational energy of the atmosphere would last about three months: see "If compression paid the bill".</p>
     </details>
     <details>
       <summary>"Venus is closer to the Sun."</summary>
@@ -302,6 +317,17 @@
     </details>
   </section>
 
+  <section class="card wide prose" aria-label="Found an error?">
+    <h2>Found an error?</h2>
+    <p>Every number on this page comes from the equations and data listed below, and the code is public. If one is wrong, show which one, the value you get instead and how you get it. The report opens on GitHub, already filled in with a link to the view you are looking at.</p>
+    <div class="gtools"><button id="reportBtn">Report an error</button><a id="reportList" href="https://github.com/Davey811/venus-greenhouse/issues?q=is%3Aissue+in%3Atitle+%22Error+report%22">See the reports</a></div>
+    <p id="reportCount" class="note"></p>
+    <p><b>Corrections so far</b></p>
+    <ul class="corr">
+      <li>13 November 2026: the emission level is now a sphere of radius R + z<sub>e</sub>, radiating the same power at T<sub>em</sub> = T<sub>e</sub> (R / (R + z<sub>e</sub>))<sup>½</sup>. Effect on the emission temperature: 1.3 K. Raised in a discussion on X.</li>
+    </ul>
+  </section>
+
   <footer>
     <p><b>Sources.</b> F. W. Taylor and D. H. Grinspoon (2009), <i>Climate evolution of Venus</i>, J. Geophys. Res. 114, E00B40,
       <a href="https://doi.org/10.1029/2008JE003316">doi:10.1029/2008JE003316</a>: quotes from §2.2 and §2.4, Table 2 in §4.6.
@@ -315,7 +341,7 @@
       Greenhouse effect: infrared emitted by the ground minus infrared sent to space.
       "Must come back from the air" is what the ground emits minus the sunlight it absorbs; any heat the air's motions carry away from the ground only adds to it.
       The slider keeps today's 17 W/m² at the ground for every height. This is a test of energy bookkeeping, not a climate model: the full calculation is the published model.</p>
-    <p>by <a href="https://x.com/splugged">@splugged</a></p>
+    <p>Code and data: <a href="https://github.com/Davey811/venus-greenhouse">github.com/Davey811/venus-greenhouse</a> · by <a href="https://x.com/splugged">@splugged</a></p>
   </footer>
 </main>
 
@@ -668,6 +694,35 @@
     hGreen = Math.abs(z - ZE) < 0.25 ? ZE : z; render();
   });
   window.addEventListener("resize", () => { clearTimeout(window.__fl); window.__fl = setTimeout(drawFL, 150); });
+
+  // ---------- if compression paid the bill
+  {
+    let E = 0;
+    for (let i = 0; i < VZ.length - 1; i++) { const H = (VZ[i + 1] - VZ[i]) / Math.log(VP[i] / VP[i + 1]) * 1e3; E += H * (VP[i] - VP[i + 1]) * 1e5; }
+    E += VP[VP.length - 1] * 1e5 * 4.7e3;                     // above 80 km
+    const p0 = VP[0] * 1e5, bill = SIGMA * VT[0] ** 4 - SUN_GROUND, v = bill / p0;
+    $("cmBill").textContent = fmtW(bill);
+    $("cmV").textContent = `${(v * 1e3).toFixed(1)} mm/s`;
+    $("cmY").textContent = `${(v * 3.156e7 / 1e3).toFixed(0)} km`;
+    $("cmE").textContent = `${(E / 1e9).toFixed(0)} GJ/m²`;
+    $("cmZ").textContent = `${(E / p0 / 1e3).toFixed(1)} km`;
+    $("cmD").textContent = `${(E / bill / 86400).toFixed(0)} days`;
+  }
+
+  // ---------- report an error: a prefilled GitHub issue, and a public count
+  const REPO = "Davey811/venus-greenhouse";
+  $("reportBtn").addEventListener("click", () => {
+    const body = ["**View:** " + linkHere(), "", "**Which number or line is wrong** (section, row or line of venus_test.py):", "", "",
+      "**The value the tool gives:**", "", "", "**The correct value:**", "", "", "**How you get it** (equation, data, source):", "", ""].join("\n");
+    window.open(`https://github.com/${REPO}/issues/new?title=${encodeURIComponent("Error report: ")}&body=${encodeURIComponent(body)}`, "_blank", "noopener");
+  });
+  (async () => {
+    const q = t => fetch(`https://api.github.com/search/issues?q=${encodeURIComponent(`repo:${REPO} is:issue in:title "Error report" ${t}`)}`).then(r => r.ok ? r.json() : Promise.reject(r.status));
+    try {
+      const [all, fixed] = await Promise.all([q(""), q("is:closed reason:completed")]);
+      $("reportCount").textContent = `Error reports so far: ${all.total_count}. Confirmed and fixed: ${fixed.total_count}.`;
+    } catch (e) { $("reportCount").textContent = "The list of reports is on GitHub."; }
+  })();
 
   readURL();
   render(); renderGases(); drawFL();

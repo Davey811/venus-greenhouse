@@ -86,6 +86,19 @@ Rough time scale: the whole atmosphere is assumed to warm together at a fixed la
 
 In the second run the emission height can also be set through the infrared optical depth of the whole atmosphere, τ₀. Grey model: one opacity for the whole infrared, absorber mixed with the air, so τ(z) = τ₀ p(z)/p₀, and Venus radiates from where τ = 1, that is where p = p₀ / τ₀. On the measured profile τ₀ ≈ 3,300 puts that level at 71.4 km. Doubling τ₀ lifts it by H ln 2, about 3.3 km near the cloud tops, whatever τ₀ is: the effect grows with the logarithm and never saturates. Real absorbers are not grey; the full calculation, with spectra, is the published model.
 
+## If compression paid the bill
+
+Suppose there were no greenhouse effect and the ground were kept at 735 K by compression. The ground loses σT⁴ − 17 W/m² ≈ 16,559 W/m² more than the sunlight reaching it, every second. Compression supplies energy only while the air is being compressed: gravity does work p₀ × v per square metre as the column sinks at speed v.
+
+| | |
+|---|---|
+| The air would have to sink at | 1.8 mm/s, about 57 km a year |
+| Gravitational energy of the whole atmosphere, ∫ p dz (VIRA) | 125 GJ/m² |
+| Its centre of mass sits at | 13.6 km |
+| All of it would pay the ground's bill for | 88 days |
+
+A static atmosphere does no work: compression heats only while it lasts.
+
 ## The explicit equations
 
 The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.
@@ -141,6 +154,14 @@ Not in the measurements. In VIRA the pressure is 1 bar at 50.5 km, where the air
 
 **"Only 17 W/m² of sunlight reaches the ground. How can it be the greenhouse effect?"**
 That's the strongest evidence for it. 17 W/m² of sunlight can't keep up a ground that emits 16,600 W/m². Almost all of the energy the ground receives arrives as infrared from the air above.
+
+## Found an error?
+
+Every number here comes from the equations and data in this repository. If one is wrong, open an issue titled "Error report" with the number or line, the value the tool gives, the correct value and how you get it. The interactive page has a "Report an error" button that fills this in, with a link to the view you are looking at, and shows how many reports have been filed and fixed.
+
+**Corrections so far**
+
+- 13 November 2026: the emission level is now a sphere of radius R + z_e, radiating the same power at T_em = T_e (R / (R + z_e))^½. Effect on the emission temperature: 1.3 K. Raised in a discussion on X.
 
 ## Files
 
