@@ -28,6 +28,10 @@ Middle-of-the-mass rule: T_s = T_e + Gamma x z_half
   Earth: 255.12 + 6.5 x 5.48 = 290.72 K, off by -2.57 K
   Venus: 226.63 + 7.145 x 10.40 = 300.94 K, off by +434.4 K
 
+First Law in time, C = 1.14e+09 J/(m2 K), e-folding 14.0 years
+  +1 km: outgoing - absorbed -18.0 W/m2, ground +7.11 K after 80 years (end state +7.13 K), stored 8.12 GJ/m2 = added up 8.12 GJ/m2
+  +5 km: outgoing - absorbed -74.5 W/m2, ground +35.51 K after 80 years (end state +35.63 K), stored 40.55 GJ/m2 = added up 40.55 GJ/m2
+
 Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
   CO2     -422.7 K  ->  about 313 K
   clouds  -142.8 K  ->  about 593 K

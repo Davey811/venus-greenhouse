@@ -89,6 +89,9 @@
   details p { margin: 7px 0 0; max-width: 780px; }
   a { color: var(--teal); }
   .eqwrap { overflow-x: auto; }
+  table.fltab { margin-top: 6px; }
+  .gtools button[aria-pressed="true"] { color: var(--fg); border-style: solid; border-color: var(--teal); }
+  #fl { margin-top: 6px; }
   table.eqt { min-width: 640px; font-size: 14px; }
   table.eqt th { text-align: left; color: var(--dim); font-weight: 600; font-size: 13px; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
   table.eqt td { text-align: left; white-space: normal; padding: 9px 10px 9px 0; }
@@ -130,6 +133,9 @@
         <label for="h">Emission height <output id="hO"></output></label>
         <input id="h" type="range" min="1" max="80" step="0.1" value="71">
         <p class="note">More absorbing gas, higher emission level. Venus's measured profile reaches the emission temperature at 71 km, near the cloud tops.</p>
+        <label for="tau">Infrared optical depth τ₀ <output id="tauO"></output></label>
+        <input id="tau" type="range" min="0" max="4.3" step="0.01">
+        <p class="note">Grey model: one opacity for the whole infrared, absorber mixed with the air, so τ(z) = τ₀ p(z)/p₀. Venus radiates from where τ = 1: <span id="tauP"></span>. Doubling τ₀ lifts that level by <span id="tauD"></span>; the effect grows with the logarithm and never saturates.</p>
       </div>
     </section>
 
@@ -192,6 +198,20 @@
         On Venus that level is about 71 km, where the air is at 225 K; below it the temperature rises by about 7.1 K per km: 225.30 + 7.145 × 71.38 = 735.3 K. The absorbers set the height, the lapse rate sets the slope.
         This step explains the profile, it doesn't prove anything: the 71 km and the slope are read from the measured profile, so 735 K comes out by construction. The proof is in steps 1 to 4.</li>
     </ol>
+  </section>
+
+  <section class="card wide prose" aria-label="The First Law in time">
+    <h2>The First Law, in time</h2>
+    <p>Add absorbers and the emission level moves up. For a while Venus radiates from colder air: less power leaves than arrives, and the difference is stored as heat, dU/dt = P<sub>in</sub> − P<sub>out</sub>. The column warms at the same lapse rate until the new level radiates the absorbed power again. Nothing is created: the warming is paid for by the imbalance.</p>
+    <div class="gtools" role="group" aria-label="Raise the emission level"><button data-dz="1" aria-pressed="true">Raise the emission level by 1 km</button><button data-dz="5" aria-pressed="false">by 5 km</button></div>
+    <svg id="fl" viewBox="0 0 900 290" role="img" aria-label="After the emission level rises: outgoing minus absorbed power, and ground warming, against time"></svg>
+    <table class="fltab">
+      <tr><td>Outgoing − absorbed, right after the step</td><td id="flI"></td></tr>
+      <tr><td>Ground warming at the end</td><td id="flT"></td></tr>
+      <tr><td>Energy stored in the column, C × ΔT</td><td id="flU"></td></tr>
+      <tr><td>Imbalance added up over time, ∫ (P<sub>in</sub> − P<sub>out</sub>) dt</td><td id="flS"></td></tr>
+    </table>
+    <p class="note" style="margin-top:8px">Rough time scale: the whole atmosphere warms together at a fixed lapse rate, with heat capacity C = (p₀ / g) × c<sub>p</sub> = (9.21 × 10⁶ Pa / 8.87 m/s²) × 1.1 kJ/(kg·K) ≈ 1.1 × 10⁹ J/(m²·K), c<sub>p</sub> of CO₂ at 600–700 K (Çengel and Cimbala, Table A-10). The end state does not depend on C; only the timing does.</p>
   </section>
 
   <section class="card wide prose" aria-label="The explicit equations">
@@ -311,6 +331,10 @@
   // emission level: where the measured profile reaches TEM (linear between 70 and 80 km); mean lapse rate
   let ZE = 71; for (let i = 0; i < 20; i++) ZE = 70 + 10 * (VT[13] - TEM(ZE)) / (VT[13] - VT[14]);
   const G = (VT[0] - TEM(ZE)) / ZE;
+  // grey optical depth: tau(z) = tau0 p(z)/p0, emission where tau = 1
+  const pAt = z => atZ(z).p, zAtP = pb => (pb >= VP[0] ? 0 : atP(pb).z);
+  const tauOf = z => VP[0] / pAt(z);
+  const Hloc = z => { for (let i = 0; i < VZ.length - 1; i++) if (VZ[i] <= z && z <= VZ[i + 1]) return (VZ[i + 1] - VZ[i]) / Math.log(VP[i] / VP[i + 1]); };   // local scale height, km
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
@@ -457,6 +481,13 @@
       : `<span class="ok"><b>Balanced.</b></span> The ground emits ${fmtW(emit)}, but only ${fmtW(Q)} leave Venus, from ${st.h.toFixed(0)} km: the air traps the other ${fmtW(emit - Q)}. About 17 W/m² of sunlight reaches the ground, so at least ${fmtW(back)} has to come back to it from the air.`;
     $("ctlP").hidden = mode !== "pressure"; $("ctlG").hidden = mode !== "greenhouse";
     $("h").value = hGreen; $("hO").textContent = hGreen === ZE ? `${ZE.toFixed(2)} km (measured)` : `${hGreen.toFixed(1)} km`;
+    {
+      const t0 = tauOf(hGreen), pe = pAt(hGreen), up = Hloc(hGreen) * Math.LN2;
+      $("tau").value = Math.log10(t0).toFixed(2);
+      $("tauO").textContent = Math.round(t0).toLocaleString("en-US");
+      $("tauP").textContent = `p = ${pe < 0.01 ? pe.toPrecision(2) : pe.toFixed(3)} bar, at ${hGreen.toFixed(1)} km`;
+      $("tauD").textContent = `${up.toFixed(1)} km here`;
+    }
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === mode)));
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.a === alb)));
     $("bar1").setAttribute("aria-pressed", String(showBar));
@@ -550,8 +581,63 @@
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { render(); renderGases(); }, 120); });
   $("gAllOn").addEventListener("click", () => { off.clear(); renderGases(); });
   $("gAllOff").addEventListener("click", () => { GASES.forEach((_, i) => off.add(i)); renderGases(); });
+  // ---------- the First Law in time: raise the emission level by dz, integrate C dTs/dt = Q - OLR
+  const YEAR = 3.156e7, CCOL = (9.21e6 / 8.87) * 1100;          // J/(m2 K)
+  let flDz = 1;
+  function runFL(dz) {
+    const z1 = ZE + dz, f = ((R + z1) / R) ** 2, ts0 = TEM(ZE) + G * ZE;
+    let ts = ts0, sum = 0; const dt = 0.02 * YEAR, out = { t: [], imb: [], dT: [] };
+    for (let k = 0; k <= 4000; k++) {
+      const olr = SIGMA * (ts - G * z1) ** 4 * f, imb = Q - olr;
+      if (k % 10 === 0) { out.t.push(k * 0.02); out.imb.push(olr - Q); out.dT.push(ts - ts0); }
+      ts += imb * dt / CCOL; sum += imb * dt;
+    }
+    out.final = TEM(z1) + G * z1 - ts0; out.stored = CCOL * (ts - ts0); out.sum = sum; out.first = out.imb[0];
+    return out;
+  }
+  function drawFL() {
+    const svg = $("fl"); svg.innerHTML = "";
+    const narrow = (svg.parentElement.clientWidth || 900) < 620;
+    const W = narrow ? 380 : 900, H = narrow ? 560 : 290;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const r = runFL(flDz), tmax = 80;
+    const nice = v => { const m = Math.pow(10, Math.floor(Math.log10(v))); return [1, 2, 2.5, 5, 10].map(x => x * m).find(x => x >= v); };
+    const panel = (x0, y0, w, h, ys, lo, hi, step, title, col, unit) => {
+      const X = t => x0 + w * t / tmax, Y = v => y0 + h * (1 - (v - lo) / (hi - lo));
+      for (let v = lo; v <= hi + 1e-9; v += step) {
+        el("line", { x1: x0, x2: x0 + w, y1: Y(v), y2: Y(v), stroke: "#2a333d" }, svg);
+        el("text", { x: x0 - 8, y: Y(v) + 4, fill: "#8b98a5", "font-size": 12, "text-anchor": "end" }, svg, String(Math.round(v * 10) / 10).replace("-", "−"));
+      }
+      for (let t = 0; t <= tmax; t += 20) el("text", { x: X(t), y: y0 + h + 17, fill: "#8b98a5", "font-size": 12, "text-anchor": "middle" }, svg, t);
+      el("text", { x: x0 + w / 2, y: y0 + h + 34, fill: "#8b98a5", "font-size": 12, "text-anchor": "middle" }, svg, "years after the step");
+      el("text", { x: x0, y: y0 - 10, fill: "#e7e9ea", "font-size": 13, "font-weight": 700 }, svg, title);
+      el("polyline", { points: r.t.map((t, i) => `${X(t)},${Y(ys[i])}`).join(" "), fill: "none", stroke: col, "stroke-width": 2.6 }, svg);
+      el("text", { x: x0 + w, y: y0 - 10, fill: col, "font-size": 12.5, "text-anchor": "end" }, svg, unit);
+    };
+    const s1 = nice(-r.first / 4), lo1 = -Math.ceil(-r.first / s1) * s1;
+    const s2 = nice(r.final / 4), hi2 = Math.ceil(r.final / s2) * s2;
+    if (narrow) {
+      panel(48, 30, W - 64, 190, r.imb, lo1, 0, s1, "Outgoing − absorbed", "#ff6b6b", "W/m²");
+      panel(48, 320, W - 64, 190, r.dT, 0, hi2, s2, "Ground warming", "#4fd1c5", "K");
+    } else {
+      panel(56, 30, 370, 210, r.imb, lo1, 0, s1, "Outgoing − absorbed", "#ff6b6b", "W/m²");
+      panel(514, 30, 370, 210, r.dT, 0, hi2, s2, "Ground warming", "#4fd1c5", "K");
+    }
+    $("flI").textContent = `−${Math.abs(r.first).toFixed(1)} W/m²`;
+    $("flT").textContent = `+${r.final.toFixed(2)} K`;
+    $("flU").textContent = `${(r.stored / 1e9).toFixed(2)} GJ/m²`;
+    $("flS").textContent = `${(r.sum / 1e9).toFixed(2)} GJ/m²`;
+    document.querySelectorAll("[data-dz]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.dz === flDz)));
+  }
+  document.querySelectorAll("[data-dz]").forEach(b => b.addEventListener("click", () => { flDz = +b.dataset.dz; drawFL(); }));
+  $("tau").addEventListener("input", () => {
+    const pe = VP[0] / Math.pow(10, +$("tau").value), z = Math.max(1, Math.min(80, zAtP(pe)));
+    hGreen = Math.abs(z - ZE) < 0.25 ? ZE : z; render();
+  });
+  window.addEventListener("resize", () => { clearTimeout(window.__fl); window.__fl = setTimeout(drawFL, 150); });
+
   readURL();
-  render(); renderGases();
+  render(); renderGases(); drawFL();
 })();
 </script>
 </body>

@@ -57,6 +57,21 @@ One species at a time: the values are not additive. On the page you can switch o
 - it cools by **at most** about 509 K (735 − 227), which would leave the ground at T_e: with nothing absorbing infrared and the albedo fixed, that is where the first run sits;
 - the plain sum of the single effects is not the answer. With everything switched off it comes to 653.6 K, which would leave the ground at 82 K, below T_e: impossible. Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.
 
+## The First Law, in time
+
+Add absorbers and the emission level moves up. For a while Venus radiates from colder air, so less power leaves than arrives, and the difference is stored as heat: dU/dt = P_in − P_out. The column warms at the same lapse rate until the new level radiates the absorbed power again. Nothing is created: the warming is paid for by the imbalance, and the page checks it by adding up the imbalance over time and comparing it with the energy stored.
+
+| Emission level raised by | Outgoing − absorbed, right after | Ground warming at the end | Energy stored = imbalance added up |
+|---|---|---|---|
+| 1 km | −18.0 W/m² | +7.13 K | 8.12 GJ/m² |
+| 5 km | −74.5 W/m² | +35.6 K | 40.6 GJ/m² |
+
+Rough time scale: the whole atmosphere is assumed to warm together at a fixed lapse rate, with heat capacity C = (p₀ / g) c_p = (9.21 × 10⁶ Pa / 8.87 m/s²) × 1.1 kJ/(kg·K) ≈ 1.1 × 10⁹ J/(m²·K), c_p of CO₂ at 600–700 K (Çengel and Cimbala, Table A-10). The e-folding time is C / (4σT_em³) ≈ 14 years. The end state does not depend on C; only the timing does.
+
+## The optical depth as a knob
+
+In the second run the emission height can also be set through the infrared optical depth of the whole atmosphere, τ₀. Grey model: one opacity for the whole infrared, absorber mixed with the air, so τ(z) = τ₀ p(z)/p₀, and Venus radiates from where τ = 1, that is where p = p₀ / τ₀. On the measured profile τ₀ ≈ 3,300 puts that level at 71.4 km. Doubling τ₀ lifts it by H ln 2, about 3.3 km near the cloud tops, whatever τ₀ is: the effect grows with the logarithm and never saturates. Real absorbers are not grey; the full calculation, with spectra, is the published model.
+
 ## The explicit equations
 
 The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.

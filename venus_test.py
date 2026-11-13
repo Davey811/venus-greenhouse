@@ -114,6 +114,21 @@ def main():
         f"  Venus: {Te:.2f} + {gamma:.3f} x {zhalf_V:.2f} = {rule_V:.2f} K, off by {T[0] - rule_V:+.1f} K",
         "",
     ]
+    # First Law in time: raise the emission level by dz, integrate C dTs/dt = absorbed - outgoing
+    C = (9.21e6 / 8.87) * 1100.0                             # J/(m2 K), whole column, cp of CO2 at 600-700 K
+    out.append(f"First Law in time, C = {C:.3g} J/(m2 K), e-folding {C / (4 * SIGMA * T_em(ze) ** 3) / 3.156e7:.1f} years")
+    for dz in (1.0, 5.0):
+        z1, ts0 = ze + dz, T_em(ze) + gamma * ze
+        f = ((R_VENUS + z1) / R_VENUS) ** 2
+        ts, total, dt = ts0, 0.0, 0.02 * 3.156e7
+        first = SIGMA * (ts - gamma * z1) ** 4 * f - absorbed
+        for _ in range(4001):
+            imb = absorbed - SIGMA * (ts - gamma * z1) ** 4 * f
+            ts += imb * dt / C
+            total += imb * dt
+        out.append(f"  +{dz:.0f} km: outgoing - absorbed {first:+.1f} W/m2, ground {ts - ts0:+.2f} K after 80 years "
+                   f"(end state {T_em(z1) + gamma * z1 - ts0:+.2f} K), stored {C * (ts - ts0) / 1e9:.2f} GJ/m2 = added up {total / 1e9:.2f} GJ/m2")
+    out.append("")
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
     total = sum(d for _, d in REMOVE_ONE)
