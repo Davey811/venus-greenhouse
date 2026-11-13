@@ -114,7 +114,7 @@
       <div id="ctlG">
         <label for="h">Emission height <output id="hO"></output></label>
         <input id="h" type="range" min="1" max="80" step="0.1" value="71">
-        <p class="note">More absorbing gas, higher emission level. Venus's measured profile reaches Tₑ at 71 km, near the cloud tops.</p>
+        <p class="note">More absorbing gas, higher emission level. Venus's measured profile reaches the emission temperature at 71 km, near the cloud tops.</p>
       </div>
     </section>
 
@@ -171,7 +171,7 @@
       <li><b>The ground lives on what the air sends back.</b> <q>Enough sunlight diffuses through the cloud layers on Venus to provide about 17 W per m2 of average surface insolation</q>. <span class="ref">§2.4</span>
         A ground that emits 16,600 W/m² and gets 17 W/m² from the Sun receives at least ~16,560 W/m² from the air above. Without the infrared trapped in step 3, the air would only have the ~130 W/m² of sunlight it absorbs itself to pass on, a hundred times too little.</li>
       <li><b>The lapse rate fills in the shape.</b> The absorbed energy <q>must instead be raised by convection along an approximately adiabatic temperature-pressure profile to a level near the cloud tops where it can radiate to space</q>. <span class="ref">§2.4</span>
-        On Venus that level is about 71 km, where the air is at 227 K; below it the temperature rises by about 7.2 K per km: 226.63 + 7.167 × 70.97 = 735.3 K. The absorbers set the height, the lapse rate sets the slope.
+        On Venus that level is about 71 km, where the air is at 225 K; below it the temperature rises by about 7.1 K per km: 225.30 + 7.145 × 71.38 = 735.3 K. The absorbers set the height, the lapse rate sets the slope.
         This step explains the profile, it doesn't prove anything: the 71 km and the slope are read from the measured profile, so 735 K comes out by construction. The proof is in steps 1 to 4.</li>
     </ol>
   </section>
@@ -228,7 +228,7 @@
       NASA Venus Fact Sheet: solar irradiance 2601.3 W/m², Bond albedo 0.77, black-body temperature 226.6 K.
       A. Raval and V. Ramanathan (1989), <i>Observational determination of the greenhouse effect</i>, Nature 342, <a href="https://doi.org/10.1038/342758a0">doi:10.1038/342758a0</a> (the definition, from the abstract).
       Earth: surface emission about 396 W/m², K. E. Trenberth and J. T. Fasullo (2012), Surv. Geophys. 33, 413–426, <a href="https://doi.org/10.1007/s10712-011-9150-2">doi:10.1007/s10712-011-9150-2</a>; 240 W/m² to space = sunlight absorbed, 1361 × (1 − 0.294) / 4 (NASA Earth Fact Sheet).</p>
-    <p><b>Method.</b> Sunlight absorbed: 2601.3 × (1 − albedo) / 4. Lapse rate: (735.3 − 226.6) K / 70.97 km = 7.17 K/km, the mean of the measured profile from the ground to the level where it reaches Tₑ.
+    <p><b>Method.</b> Sunlight absorbed: 2601.3 × (1 − albedo) / 4. Emission level: a sphere of radius R + h radiates the same power as Tₑ over the ground, so it sits at Tₑ × (R / (R + h))^½, with R = 6051.8 km: 225.3 K at 71.38 km, where the measured profile reaches that temperature. Lapse rate: (735.3 − 225.3) K / 71.38 km = 7.145 K/km, the mean of the measured profile from the ground to that level.
       The ground is treated as black in the infrared; rock is close to it (an emissivity of 0.9 would turn 227 K into 233 K).
       Greenhouse effect: infrared emitted by the ground minus infrared sent to space.
       "Must come back from the air" is what the ground emits minus the sunlight it absorbs; any heat the air's motions carry away from the ground only adds to it.
@@ -244,8 +244,11 @@
   const TE = Math.pow(Q / SIGMA, 0.25);            // 226.6 K
   const VZ = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80];
   const VT = [735.3, 696.8, 658.2, 620.8, 580.7, 539.2, 496.9, 455.5, 417.6, 385.4, 350.5, 302.3, 262.8, 229.8, 197.1];
-  // emission level: where the measured profile reaches Te (linear between 70 and 80 km); mean lapse rate
-  const ZE = 70 + 10 * (VT[13] - TE) / (VT[13] - VT[14]), G = (VT[0] - TE) / ZE;
+  // the emission level is a sphere of radius R + h: same power as Te over the ground, so it radiates at TEM(h)
+  const R = 6051.8, TEM = h => TE * Math.sqrt(R / (R + h));
+  // emission level: where the measured profile reaches TEM (linear between 70 and 80 km); mean lapse rate
+  let ZE = 71; for (let i = 0; i < 20; i++) ZE = 70 + 10 * (VT[13] - TEM(ZE)) / (VT[13] - VT[14]);
+  const G = (VT[0] - TEM(ZE)) / ZE;
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
@@ -260,7 +263,7 @@
       const q = S * (1 - alb) / 4;
       return { q, Ts: Math.pow(q / SIGMA, 0.25), h: 0, sunGround: q };
     }
-    return { q: Q, Ts: TE + G * hGreen, h: hGreen, sunGround: SUN_GROUND };
+    return { q: Q, Ts: TEM(hGreen) + G * hGreen, h: hGreen, sunGround: SUN_GROUND };
   }
 
   function el(tag, attrs, parent, text) {
@@ -295,8 +298,8 @@
     el("text", { x: X(VT[8]) - 10, y: Y(VZ[8]) + 4, fill: "#8b98a5", "font-size": 12, "text-anchor": "end" }, svg, narrow ? "measured" : "measured (VIRA)");
     const col = mode === "pressure" ? "#a0aec0" : "#4fd1c5";
     if (st.h > 0) {
-      el("line", { x1: X(TE), y1: Y(st.h), x2: X(st.Ts), y2: Y(0), stroke: col, "stroke-width": 3 }, svg);
-      el("circle", { cx: X(TE), cy: Y(st.h), r: 6, fill: col }, svg);
+      el("line", { x1: X(TEM(st.h)), y1: Y(st.h), x2: X(st.Ts), y2: Y(0), stroke: col, "stroke-width": 3 }, svg);
+      el("circle", { cx: X(TEM(st.h)), cy: Y(st.h), r: 6, fill: col }, svg);
       el("text", { x: X(TE) + 12, y: Y(st.h) - 9, fill: col, "font-size": 12.5, "paint-order": "stroke", stroke: "#161d24", "stroke-width": 4 }, svg,
         `radiates to space from ${st.h.toFixed(1)} km`);
     }
@@ -313,7 +316,7 @@
     $("tsC").textContent = `Ground temperature in this run. Measured on Venus: ${K(VT[0])}.`;
     $("eq").textContent = mode === "pressure"
       ? `σT⁴ = ${st.q.toFixed(1)} W/m²  →  T = ${st.Ts.toFixed(1)} K`
-      : `Tₑ + Γ × h = ${TE.toFixed(2)} + ${G.toFixed(3)} × ${st.h.toFixed(2)} = ${st.Ts.toFixed(1)} K`;
+      : `T_em + Γ × h = ${TEM(st.h).toFixed(2)} + ${G.toFixed(3)} × ${st.h.toFixed(2)} = ${st.Ts.toFixed(1)} K`;
     $("lIn").textContent = fmtW(st.q);
     $("lOut").textContent = fmtW(st.q);
     $("lFrom").textContent = mode === "pressure" ? "from the ground" : `from about ${st.h.toFixed(0)} km`;

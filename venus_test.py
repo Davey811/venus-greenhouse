@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 
 SIGMA = 5.670374419e-8
 S, ALBEDO = 2601.3, 0.77          # NASA Venus Fact Sheet: solar irradiance (W/m2), Bond albedo
+R_VENUS = 6051.8                  # km, mean radius (NASA Venus Fact Sheet)
 SUN_AT_GROUND = 17.0              # W/m2, average surface insolation (Taylor & Grinspoon 2009, sec. 2.4)
 EARTH_SURFACE_LW = 396.0          # W/m2, Earth's surface emission (Trenberth & Fasullo 2012)
 EARTH_OLR = 1361 * (1 - 0.294) / 4  # W/m2 to space = sunlight absorbed (NASA Earth Fact Sheet)
@@ -50,15 +51,20 @@ def main():
     z, T = load()
     absorbed = S * (1 - ALBEDO) / 4                 # planet-average absorbed sunlight
     Te = (absorbed / SIGMA) ** 0.25
-    ze = crossing(z, T, Te)                         # emission level
-    gamma = (T[0] - Te) / ze                        # mean lapse rate, ground to emission level
+    # the emission level is a sphere of radius R + h: it radiates the same power as Te over the ground,
+    # so its temperature is T_em(h) = Te * sqrt(R / (R + h)). Find where the measured profile reaches it.
+    T_em = lambda h: Te * (R_VENUS / (R_VENUS + h)) ** 0.5
+    ze = crossing(z, T, Te)
+    for _ in range(20):
+        ze = crossing(z, T, T_em(ze))                # emission level
+    gamma = (T[0] - T_em(ze)) / ze                  # mean lapse rate, ground to emission level
 
     ceiling = (S / 4 / SIGMA) ** 0.25               # transparent air, nothing reflected
 
     runs = []
     for name, h, opaque in (("pressure only (air that doesn't absorb infrared)", 0.0, False),
-                            ("pressure + infrared absorbers (Te at the emission level)", ze, True)):
-        Ts = Te + gamma * h
+                            ("pressure + infrared absorbers (radiating from the emission level)", ze, True)):
+        Ts = T_em(h) + gamma * h
         emit = SIGMA * Ts ** 4
         leaves = absorbed                           # steady state; transparent air: all of it from the ground
         sun_ground = SUN_AT_GROUND if opaque else absorbed
@@ -68,7 +74,7 @@ def main():
     out = [
         f"absorbed sunlight (planet average)  {absorbed:7.1f} W/m2",
         f"effective temperature Te            {Te:7.2f} K",
-        f"emission level (profile reaches Te) {ze:7.2f} km",
+        f"emission level (profile reaches T_em) {ze:5.2f} km, T_em = {T_em(ze):.2f} K (curvature)",
         f"mean lapse rate                     {gamma:7.3f} K/km",
         f"measured surface                    {T[0]:7.1f} K",
         f"ceiling, transparent air and nothing reflected: sigma T^4 = {S / 4:.1f} W/m2 -> {ceiling:.1f} K",
@@ -110,9 +116,9 @@ def main():
     a1.text(Te + 4, 77, f"Te = {Te:.1f} K", color=DIM, fontsize=9)
     for (name, h, Ts, *_), c, lab in zip(runs, COLS, ("pressure only", "infrared absorbers")):
         if h > 0:
-            a1.plot([Te, Ts], [h, 0], color=c, lw=2.6)
-            a1.plot(Te, h, "o", color=c, ms=7)
-            a1.text(Te + 8, h + 1.5, f"radiates to space from {h:.0f} km", color=c, fontsize=9)
+            a1.plot([T_em(h), Ts], [h, 0], color=c, lw=2.6)
+            a1.plot(T_em(h), h, "o", color=c, ms=7)
+            a1.text(T_em(h) + 8, h + 1.5, f"radiates to space from {h:.0f} km", color=c, fontsize=9)
         a1.plot(Ts, 0, "o", color=c, ms=11, clip_on=False, label=f"{lab}: ground {Ts:.0f} K")
     a1.set_xlim(150, 760)
     a1.set_ylim(0, 80)
