@@ -102,6 +102,9 @@ It doesn't matter how the energy gets back to the ground. The ground sends out 1
 **"You tuned the second run to give 735 K."**
 Yes: its height and slope are read from the measured profile, so it matches Venus by construction. It is there to show the shape, not to prove the greenhouse effect. The proof doesn't use it: it uses the ground's temperature, the energy that leaves Venus and the sunlight that reaches the ground, all measured.
 
+**"At 1 bar Venus is at 15 °C, like the Earth."**
+Not in the measurements. In VIRA the pressure is 1 bar at 50.5 km, where the air is at 346 K (73 °C); the air is at 15 °C at 56.8 km, where the pressure is 0.4 bar (log-linear interpolation in pressure, linear in temperature). The interactive page marks both levels with "Show the 1-bar level". Anchoring Earth's surface temperature at Venus's 1-bar level is a choice, not a measurement, and the anchor is the whole question.
+
 **"Only 17 W/m² of sunlight reaches the ground. How can it be the greenhouse effect?"**
 That's the strongest evidence for it. 17 W/m² of sunlight can't keep up a ground that emits 16,600 W/m². Almost all of the energy the ground receives arrives as infrared from the air above.
 

@@ -68,6 +68,9 @@
   .gtools button { font: inherit; font-size: 12.5px; color: var(--dim); background: transparent; border: 1px dashed var(--line);
     border-radius: 8px; padding: 4px 10px; cursor: pointer; }
   .gtools button:hover { color: var(--fg); border-color: var(--dim); }
+  .chartbar { margin-top: 8px; }
+  .chartbar button { font: inherit; font-size: 13px; color: var(--dim); background: transparent; border: 1px dashed var(--line); border-radius: 8px; padding: 5px 11px; cursor: pointer; }
+  .chartbar button[aria-pressed="true"] { color: var(--fg); border-style: solid; border-color: var(--amber); }
   #range { margin-top: 12px; }
   .bar.on .n { color: var(--fg); font-weight: 700; }
   .prose p, .prose li { max-width: 780px; }
@@ -132,6 +135,7 @@
       <p class="bigcap" id="tsC"></p>
       <p class="eq" id="eq"></p>
       <svg id="chart" viewBox="0 0 640 430" role="img" aria-label="Temperature against altitude: model and measured Venus profile"></svg>
+      <div class="chartbar"><button id="bar1" aria-pressed="false">Show the 1-bar level</button></div>
     </section>
   </div>
 
@@ -258,6 +262,10 @@
       <p>Yes: its height and slope are read from the measured profile, so it matches Venus by construction. It is there to show the shape, not to prove the greenhouse effect. The proof doesn't use it: it uses the ground's temperature, the energy that leaves Venus and the sunlight that reaches the ground, all measured.</p>
     </details>
     <details>
+      <summary>"At 1 bar Venus is at 15 °C, like the Earth."</summary>
+      <p>Not in the measurements. In the Venus International Reference Atmosphere the pressure is 1 bar at 50.5 km, where the air is at 346 K, 73 °C. The air is at 15 °C higher up, at 56.8 km, where the pressure is 0.4 bar. Press "Show the 1-bar level" under the chart. Anchoring Earth's surface temperature at Venus's 1-bar level is a choice, not a measurement, and the anchor is the whole question.</p>
+    </details>
+    <details>
       <summary>"Only 17 W/m² of sunlight reaches the ground. How can it be the greenhouse effect?"</summary>
       <p>That's the strongest evidence for it. 17 W/m² of sunlight can't keep up a ground that emits 16,600 W/m². Almost all of the energy the ground receives arrives as infrared from the air above.</p>
     </details>
@@ -287,6 +295,11 @@
   const TE = Math.pow(Q / SIGMA, 0.25);            // 226.6 K
   const VZ = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80];
   const VT = [735.3, 696.8, 658.2, 620.8, 580.7, 539.2, 496.9, 455.5, 417.6, 385.4, 350.5, 302.3, 262.8, 229.8, 197.1];
+  const VP = [92.1, 66.65, 47.39, 33.04, 22.52, 14.93, 9.581, 5.917, 3.501, 1.979, 1.066, 0.5314, 0.2357, 0.0369, 0.004476];   // bar
+  // where the measured profile crosses a pressure (log-linear) or a temperature (linear)
+  const atP = pb => { for (let i = 0; i < VP.length - 1; i++) if (VP[i] >= pb && pb >= VP[i + 1]) { const f = Math.log(VP[i] / pb) / Math.log(VP[i] / VP[i + 1]); return { z: VZ[i] + f * (VZ[i + 1] - VZ[i]), T: VT[i] + f * (VT[i + 1] - VT[i]) }; } };
+  const atT = t => { for (let i = 0; i < VT.length - 1; i++) if (VT[i] >= t && t >= VT[i + 1]) { const f = (VT[i] - t) / (VT[i] - VT[i + 1]); return { z: VZ[i] + f * (VZ[i + 1] - VZ[i]), p: Math.exp(Math.log(VP[i]) + f * Math.log(VP[i + 1] / VP[i])) }; } };
+  const ONE_BAR = atP(1), T15 = atT(288.15);
   // the emission level is a sphere of radius R + h: same power as Te over the ground, so it radiates at TEM(h)
   const R = 6051.8, TEM = h => TE * Math.sqrt(R / (R + h));
   // emission level: where the measured profile reaches TEM (linear between 70 and 80 km); mean lapse rate
@@ -295,7 +308,7 @@
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
-  let mode = "greenhouse", hGreen = ZE, alb = A;
+  let mode = "greenhouse", hGreen = ZE, alb = A, showBar = false;
   const off = new Set([0]);                        // absorbers switched off, by index in GASES
 
   const fmtW = w => `${(Math.round(w) || 0).toLocaleString("en-US")} W/m²`;
@@ -350,6 +363,16 @@
     const right = X(st.Ts) > W - 120;
     el("text", { x: X(st.Ts) + (right ? -14 : 12), y: right ? Y(0) + 4 : Y(0) - 12, fill: col, "font-size": 13, "font-weight": 700,
       "text-anchor": right ? "end" : "start", "paint-order": "stroke", stroke: "#161d24", "stroke-width": 4 }, svg, `ground ${st.Ts.toFixed(0)} K`);
+    if (showBar) {
+      const halo = { "paint-order": "stroke", stroke: "#161d24", "stroke-width": 4, "font-weight": 700, "font-size": narrow ? 11.5 : 13 };
+      el("line", { x1: L, x2: W - R, y1: Y(ONE_BAR.z), y2: Y(ONE_BAR.z), stroke: "#f6ad55", "stroke-dasharray": "5 4", "stroke-width": 1.5 }, svg);
+      el("circle", { cx: X(ONE_BAR.T), cy: Y(ONE_BAR.z), r: 6, fill: "#f6ad55" }, svg);
+      el("text", { x: X(ONE_BAR.T) + 10, y: Y(ONE_BAR.z) + 18, fill: "#f6ad55", ...halo }, svg,
+        narrow ? `1 bar: ${ONE_BAR.T.toFixed(0)} K` : `1 bar (${ONE_BAR.z.toFixed(1)} km): ${ONE_BAR.T.toFixed(0)} K = ${(ONE_BAR.T - 273.15).toFixed(0)} °C`);
+      el("circle", { cx: X(288.15), cy: Y(T15.z), r: 6, fill: "#ff6b6b" }, svg);
+      el("text", { x: X(288.15) + 10, y: Y(T15.z) - 9, fill: "#ff6b6b", ...halo }, svg,
+        narrow ? `15 °C: ${T15.p.toFixed(1)} bar` : `15 °C (288 K): ${T15.z.toFixed(1)} km, ${T15.p.toFixed(1)} bar`);
+    }
   }
 
   function render() {
@@ -451,6 +474,7 @@
 
   document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; render(); }));
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { alb = +b.dataset.a; render(); }));
+  $("bar1").addEventListener("click", () => { showBar = !showBar; $("bar1").setAttribute("aria-pressed", String(showBar)); render(); });
   $("h").addEventListener("input", () => { const v = +$("h").value; hGreen = Math.abs(v - ZE) < 0.25 ? ZE : v; render(); });   // snaps to the measured level
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { render(); renderGases(); }, 120); });
   $("gAllOn").addEventListener("click", () => { off.clear(); renderGases(); });
