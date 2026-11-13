@@ -171,7 +171,7 @@
       <li><b>The ground lives on what the air sends back.</b> <q>Enough sunlight diffuses through the cloud layers on Venus to provide about 17 W per m2 of average surface insolation</q>. <span class="ref">§2.4</span>
         A ground that emits 16,600 W/m² and gets 17 W/m² from the Sun receives at least ~16,560 W/m² from the air above. Without the infrared trapped in step 3, the air would only have the ~130 W/m² of sunlight it absorbs itself to pass on, a hundred times too little.</li>
       <li><b>The lapse rate fills in the shape.</b> The absorbed energy <q>must instead be raised by convection along an approximately adiabatic temperature-pressure profile to a level near the cloud tops where it can radiate to space</q>. <span class="ref">§2.4</span>
-        On Venus that level is about 71 km, where the air is at 227 K; below it the temperature rises by about 7.2 K per km: 227 + 7.17 × 71 = 735 K. The absorbers set the height, the lapse rate sets the slope.
+        On Venus that level is about 71 km, where the air is at 227 K; below it the temperature rises by about 7.2 K per km: 226.63 + 7.167 × 70.97 = 735.3 K. The absorbers set the height, the lapse rate sets the slope.
         This step explains the profile, it doesn't prove anything: the 71 km and the slope are read from the measured profile, so 735 K comes out by construction. The proof is in steps 1 to 4.</li>
     </ol>
   </section>
@@ -228,7 +228,7 @@
       NASA Venus Fact Sheet: solar irradiance 2601.3 W/m², Bond albedo 0.77, black-body temperature 226.6 K.
       A. Raval and V. Ramanathan (1989), <i>Observational determination of the greenhouse effect</i>, Nature 342, <a href="https://doi.org/10.1038/342758a0">doi:10.1038/342758a0</a> (the definition, from the abstract).
       Earth: surface emission about 396 W/m², K. E. Trenberth and J. T. Fasullo (2012), Surv. Geophys. 33, 413–426, <a href="https://doi.org/10.1007/s10712-011-9150-2">doi:10.1007/s10712-011-9150-2</a>; 240 W/m² to space = sunlight absorbed, 1361 × (1 − 0.294) / 4 (NASA Earth Fact Sheet).</p>
-    <p><b>Method.</b> Sunlight absorbed: 2601.3 × (1 − albedo) / 4. Lapse rate: (735.3 − 226.6) K / 71.0 km = 7.17 K/km, the mean of the measured profile from the ground to the level where it reaches Tₑ.
+    <p><b>Method.</b> Sunlight absorbed: 2601.3 × (1 − albedo) / 4. Lapse rate: (735.3 − 226.6) K / 70.97 km = 7.17 K/km, the mean of the measured profile from the ground to the level where it reaches Tₑ.
       The ground is treated as black in the infrared; rock is close to it (an emissivity of 0.9 would turn 227 K into 233 K).
       Greenhouse effect: infrared emitted by the ground minus infrared sent to space.
       "Must come back from the air" is what the ground emits minus the sunlight it absorbs; any heat the air's motions carry away from the ground only adds to it.
@@ -244,14 +244,15 @@
   const TE = Math.pow(Q / SIGMA, 0.25);            // 226.6 K
   const VZ = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80];
   const VT = [735.3, 696.8, 658.2, 620.8, 580.7, 539.2, 496.9, 455.5, 417.6, 385.4, 350.5, 302.3, 262.8, 229.8, 197.1];
-  const ZE = 70.98, G = (VT[0] - TE) / ZE;         // emission level, mean lapse rate
+  // emission level: where the measured profile reaches Te (linear between 70 and 80 km); mean lapse rate
+  const ZE = 70 + 10 * (VT[13] - TE) / (VT[13] - VT[14]), G = (VT[0] - TE) / ZE;
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
   let mode = "greenhouse", hGreen = ZE, alb = A;
   const off = new Set([0]);                        // absorbers switched off, by index in GASES
 
-  const fmtW = w => `${Math.round(w).toLocaleString("en-US")} W/m²`;
+  const fmtW = w => `${(Math.round(w) || 0).toLocaleString("en-US")} W/m²`;
   const K = t => `${t.toFixed(0)} K (${(t - 273.15).toFixed(0)} °C)`;
 
   function state() {
@@ -312,7 +313,7 @@
     $("tsC").textContent = `Ground temperature in this run. Measured on Venus: ${K(VT[0])}.`;
     $("eq").textContent = mode === "pressure"
       ? `σT⁴ = ${st.q.toFixed(1)} W/m²  →  T = ${st.Ts.toFixed(1)} K`
-      : `Tₑ + Γ × h = ${TE.toFixed(1)} + ${G.toFixed(2)} × ${st.h.toFixed(1)} = ${st.Ts.toFixed(1)} K`;
+      : `Tₑ + Γ × h = ${TE.toFixed(2)} + ${G.toFixed(3)} × ${st.h.toFixed(2)} = ${st.Ts.toFixed(1)} K`;
     $("lIn").textContent = fmtW(st.q);
     $("lOut").textContent = fmtW(st.q);
     $("lFrom").textContent = mode === "pressure" ? "from the ground" : `from about ${st.h.toFixed(0)} km`;
@@ -331,7 +332,7 @@
         : `<span class="ok"><b>Balanced at ${st.Ts.toFixed(0)} K.</b></span> Every photon from the Sun absorbed, nothing reflected, and the ground is still ${(VT[0] - st.Ts).toFixed(0)} K colder than Venus. This is the ceiling for a ground that radiates freely to space.`)
       : `<span class="ok"><b>Balanced.</b></span> The ground emits ${fmtW(emit)}, but only ${fmtW(Q)} leave Venus, from ${st.h.toFixed(0)} km: the air traps the other ${fmtW(emit - Q)}. About 17 W/m² of sunlight reaches the ground, so at least ${fmtW(back)} has to come back to it from the air.`;
     $("ctlP").hidden = mode !== "pressure"; $("ctlG").hidden = mode !== "greenhouse";
-    $("h").value = hGreen; $("hO").textContent = `${hGreen.toFixed(1)} km`;
+    $("h").value = hGreen; $("hO").textContent = hGreen === ZE ? `${ZE.toFixed(2)} km (measured)` : `${hGreen.toFixed(1)} km`;
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === mode)));
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.a === alb)));
     drawChart(st);
@@ -404,7 +405,7 @@
 
   document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; render(); }));
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { alb = +b.dataset.a; render(); }));
-  $("h").addEventListener("input", () => { hGreen = +$("h").value; render(); });
+  $("h").addEventListener("input", () => { const v = +$("h").value; hGreen = Math.abs(v - ZE) < 0.25 ? ZE : v; render(); });   // snaps to the measured level
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { render(); renderGases(); }, 120); });
   $("gAllOn").addEventListener("click", () => { off.clear(); renderGases(); });
   $("gAllOff").addEventListener("click", () => { GASES.forEach((_, i) => off.add(i)); renderGases(); });
