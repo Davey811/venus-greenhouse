@@ -41,6 +41,10 @@ If compression paid the bill:
   ground's bill 16559 W/m2 -> sinking speed 1.80 mm/s = 57 km/yr
   gravitational energy of the atmosphere 125 GJ/m2, centre of mass 13.6 km, lasts 88 days
 
+Mercury test:
+  Mercury absorbs 2116 W/m2 (S 9082.7, albedo 0.068), black body 439.5 K, average 440 K
+  Venus absorbs 149.6 W/m2, 14.1 times less, black body 226.6 K, average 737 K, day-night range ~0
+
 Published model, one species removed (Taylor & Grinspoon 2009, Table 2):
   CO2     -422.7 K  ->  about 313 K
   clouds  -142.8 K  ->  about 593 K

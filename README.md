@@ -99,6 +99,20 @@ Suppose there were no greenhouse effect and the ground were kept at 735 K by com
 
 A static atmosphere does no work: compression heats only while it lasts.
 
+## The Mercury test: closer to the Sun, and two months of night
+
+| | Mercury | Venus |
+|---|---|---|
+| Sunlight arriving | 9,082.7 W/m² | 2,601.3 W/m² |
+| Bond albedo | 0.068 | 0.77 |
+| Sunlight absorbed, planet average, S (1 − A) / 4 | 2,116 W/m² | 150 W/m² (14 times less) |
+| Black-body temperature | 439.6 K | 226.6 K |
+| Average surface temperature | 440 K | **737 K** |
+| Length of the solar day | 176 days | 117 days |
+| Day–night temperature range | not listed (sunward side alone: 590–725 K) | **~0** |
+
+Mercury, closer and darker and with no atmosphere, absorbs 14 times more sunlight per square metre and sits at its black-body temperature. Venus absorbs 14 times less and is 300 K hotter, and through nights of about two months its surface doesn't cool. Source: NASA NSSDC Planetary Fact Sheets, Mercury and Venus.
+
 ## The explicit equations
 
 The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.
@@ -196,6 +210,7 @@ python3 venus_test.py
 - M. A. Bullock and D. H. Grinspoon (2001), *The recent evolution of climate on Venus*, Icarus 150, 19–37, doi:[10.1006/icar.2000.6570](https://doi.org/10.1006/icar.2000.6570). The model behind Table 2.
 - Venus International Reference Atmosphere (VIRA): A. Seiff et al. (1985), *Models of the structure of the atmosphere of Venus from the surface to 100 kilometers altitude*, Adv. Space Res. 5. Values as tabulated in T. Balint (JPL), *Venus Conditions for the IPPW-6 Short Course Exercise* (2008): https://core.ac.uk/download/4719247.pdf
 - NASA NSSDC Venus Fact Sheet: https://nssdc.gsfc.nasa.gov/planetary/factsheet/venusfact.html
+- NASA NSSDC Mercury Fact Sheet: https://nssdc.gsfc.nasa.gov/planetary/factsheet/mercuryfact.html
 - A. Raval and V. Ramanathan (1989), *Observational determination of the greenhouse effect*, Nature 342, doi:[10.1038/342758a0](https://doi.org/10.1038/342758a0). The definition quoted above is from the abstract.
 - K. E. Trenberth and J. T. Fasullo (2012), *Tracking Earth's energy: from El Niño to global warming*, Surv. Geophys. 33, 413–426, doi:[10.1007/s10712-011-9150-2](https://doi.org/10.1007/s10712-011-9150-2). Earth's surface emission, about 396 W/m².
 - NASA NSSDC Earth Fact Sheet: https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html (solar irradiance 1361 W/m², Bond albedo 0.294).

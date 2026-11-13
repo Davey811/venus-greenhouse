@@ -155,6 +155,14 @@ def main():
         f"  gravitational energy of the atmosphere {E / 1e9:.0f} GJ/m2, centre of mass {E / (pp[0] * 1e5) / 1e3:.1f} km, lasts {E / bill / 86400:.0f} days",
         "",
     ]
+    # the Mercury test (NASA NSSDC fact sheets)
+    q_me = 9082.7 * (1 - 0.068) / 4
+    out += [
+        "Mercury test:",
+        f"  Mercury absorbs {q_me:.0f} W/m2 (S 9082.7, albedo 0.068), black body {(q_me / SIGMA) ** 0.25:.1f} K, average 440 K",
+        f"  Venus absorbs {absorbed:.1f} W/m2, {q_me / absorbed:.1f} times less, black body {Te:.1f} K, average 737 K, day-night range ~0",
+        "",
+    ]
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
     total = sum(d for _, d in REMOVE_ONE)
