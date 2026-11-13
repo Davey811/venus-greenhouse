@@ -14,6 +14,10 @@ The lapse rate is real: Venus's air gets hotter towards the ground at about 7 K 
 
 **Using the page.** Every section has its own address, for example `#mercury`, `#compression` or `#equations`, and every objection too, for example `#o-compression` or `#o-one-bar`: the link opens the page there, with the objection already open. Hover or touch the measured curve to read altitude, temperature and pressure; click or tap to pin the reading. "Copy link to this view" copies a link that reopens the page exactly as it is: the run, the reflection, the emission height, the 1-bar level, the pinned reading and the absorbers switched off. For example, `?run=pressure&reflect=0` opens the no-absorber ceiling of 327 K, and `?bar=1&at=50.5` the 1-bar level with its reading.
 
+## What leaves the ground, what leaves Venus
+
+The page draws two Planck spectra, M_λ = 2πhc² / λ⁵ / (e^(hc/λkT) − 1), whose areas are σT⁴. The ground at 735 K emits 16,576 W/m², peaking near 3.9 µm. Venus radiates to space from about 71 km, at 225 K, and sends out 150 W/m², peaking near 13 µm: a curve so small it is also drawn 100 times larger. The difference, 16,426 W/m², is absorbed by the air. With no infrared absorbers the two curves are the same curve. Grey picture: real spectra have bands and windows, but the totals are set by the temperatures.
+
 ## The argument, step by step
 
 1. **Venus is in energy balance.** It absorbs about 150 W/m² of sunlight, averaged over the planet, and sends the same back to space as infrared. Measurements by the Pioneer Venus Orbiter *"confirmed that the planet is in overall energy balance to within the accuracy of the measurements"* (Taylor & Grinspoon 2009, §2.4).
