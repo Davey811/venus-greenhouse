@@ -12,6 +12,8 @@ A popular claim says the greenhouse effect isn't needed on Venus: the surface is
 
 The lapse rate is real: Venus's air gets hotter towards the ground at about 7 K per km. The question is what sets the temperature at the ground, and that is decided by energy.
 
+**Using the page.** Hover or touch the measured curve to read altitude, temperature and pressure; click or tap to pin the reading. "Copy link to this view" copies a link that reopens the page exactly as it is: the run, the reflection, the emission height, the 1-bar level, the pinned reading and the absorbers switched off. For example, `?run=pressure&reflect=0` opens the no-absorber ceiling of 327 K, and `?bar=1&at=50.5` the 1-bar level with its reading.
+
 ## The argument, step by step
 
 1. **Venus is in energy balance.** It absorbs about 150 W/m² of sunlight, averaged over the planet, and sends the same back to space as infrared. Measurements by the Pioneer Venus Orbiter *"confirmed that the planet is in overall energy balance to within the accuracy of the measurements"* (Taylor & Grinspoon 2009, §2.4).

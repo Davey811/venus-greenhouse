@@ -68,7 +68,10 @@
   .gtools button { font: inherit; font-size: 12.5px; color: var(--dim); background: transparent; border: 1px dashed var(--line);
     border-radius: 8px; padding: 4px 10px; cursor: pointer; }
   .gtools button:hover { color: var(--fg); border-color: var(--dim); }
-  .chartbar { margin-top: 8px; }
+  .chartbar { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chartbar .note { margin: 0; flex-basis: 100%; }
+  #linkBox { flex-basis: 100%; font: inherit; font-size: 12.5px; color: var(--fg); background: #0b1015; border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+  #chart { touch-action: pan-y; cursor: crosshair; }
   .chartbar button { font: inherit; font-size: 13px; color: var(--dim); background: transparent; border: 1px dashed var(--line); border-radius: 8px; padding: 5px 11px; cursor: pointer; }
   .chartbar button[aria-pressed="true"] { color: var(--fg); border-style: solid; border-color: var(--amber); }
   #range { margin-top: 12px; }
@@ -135,7 +138,9 @@
       <p class="bigcap" id="tsC"></p>
       <p class="eq" id="eq"></p>
       <svg id="chart" viewBox="0 0 640 430" role="img" aria-label="Temperature against altitude: model and measured Venus profile"></svg>
-      <div class="chartbar"><button id="bar1" aria-pressed="false">Show the 1-bar level</button></div>
+      <div class="chartbar"><button id="bar1" aria-pressed="false">Show the 1-bar level</button><button id="copyLink">Copy link to this view</button>
+        <input id="linkBox" type="text" readonly hidden aria-label="Link to this view">
+        <p class="note">Hover or touch the measured curve to read altitude, temperature and pressure; click or tap to pin the reading.</p></div>
     </section>
   </div>
 
@@ -299,6 +304,7 @@
   // where the measured profile crosses a pressure (log-linear) or a temperature (linear)
   const atP = pb => { for (let i = 0; i < VP.length - 1; i++) if (VP[i] >= pb && pb >= VP[i + 1]) { const f = Math.log(VP[i] / pb) / Math.log(VP[i] / VP[i + 1]); return { z: VZ[i] + f * (VZ[i + 1] - VZ[i]), T: VT[i] + f * (VT[i + 1] - VT[i]) }; } };
   const atT = t => { for (let i = 0; i < VT.length - 1; i++) if (VT[i] >= t && t >= VT[i + 1]) { const f = (VT[i] - t) / (VT[i] - VT[i + 1]); return { z: VZ[i] + f * (VZ[i + 1] - VZ[i]), p: Math.exp(Math.log(VP[i]) + f * Math.log(VP[i + 1] / VP[i])) }; } };
+  const atZ = z => { for (let i = 0; i < VZ.length - 1; i++) if (VZ[i] <= z && z <= VZ[i + 1]) { const f = (z - VZ[i]) / (VZ[i + 1] - VZ[i]); return { T: VT[i] + f * (VT[i + 1] - VT[i]), p: Math.exp(Math.log(VP[i]) + f * Math.log(VP[i + 1] / VP[i])) }; } };
   const ONE_BAR = atP(1), T15 = atT(288.15);
   // the emission level is a sphere of radius R + h: same power as Te over the ground, so it radiates at TEM(h)
   const R = 6051.8, TEM = h => TE * Math.sqrt(R / (R + h));
@@ -308,7 +314,7 @@
   const GASES = [["CO₂", 422.7], ["Clouds", 142.8], ["H₂O", 68.8], ["OCS", 12], ["CO", 3.3], ["SO₂", 2.5], ["HCl", 1.5]];
   const $ = id => document.getElementById(id);
   const NS = "http://www.w3.org/2000/svg";
-  let mode = "greenhouse", hGreen = ZE, alb = A, showBar = false;
+  let mode = "greenhouse", hGreen = ZE, alb = A, showBar = false, readZ = null, pinned = false, geo = null;
   const off = new Set([0]);                        // absorbers switched off, by index in GASES
 
   const fmtW = w => `${(Math.round(w) || 0).toLocaleString("en-US")} W/m²`;
@@ -373,6 +379,55 @@
       el("text", { x: X(288.15) + 10, y: Y(T15.z) - 9, fill: "#ff6b6b", ...halo }, svg,
         narrow ? `15 °C: ${T15.p.toFixed(1)} bar` : `15 °C (288 K): ${T15.z.toFixed(1)} km, ${T15.p.toFixed(1)} bar`);
     }
+    geo = { W, H, L, R, T0, B, zmax };
+    if (readZ != null) {
+      const r = atZ(readZ), x = X(r.T), y = Y(readZ);
+      const pTxt = r.p >= 10 ? r.p.toFixed(0) : r.p >= 1 ? r.p.toFixed(2) : r.p.toPrecision(2);
+      el("line", { x1: L, x2: W - R, y1: y, y2: y, stroke: "#e7e9ea", "stroke-opacity": 0.35, "stroke-dasharray": "2 3" }, svg);
+      el("circle", { cx: x, cy: y, r: 5.5, fill: "#e7e9ea", stroke: "#161d24", "stroke-width": 2 }, svg);
+      const g = el("g", {}, svg), fs = narrow ? 11.5 : 12.5, lines = [`${readZ.toFixed(1)} km${pinned ? " (pinned)" : ""}`, `${r.T.toFixed(1)} K = ${(r.T - 273.15).toFixed(1)} °C`, `${pTxt} bar`];
+      const box = el("rect", { rx: 6, fill: "#0b1015", stroke: "#8b98a5", "stroke-opacity": 0.6 }, g);
+      const tx = lines.map((t, i) => el("text", { "font-size": fs, fill: "#e7e9ea", "font-weight": i === 0 ? 700 : 400 }, g, t));
+      const wBox = Math.max(...tx.map(t => t.getComputedTextLength())) + 16, hBox = lines.length * (fs + 4) + 10;
+      const bx = x + 12 + wBox < W - R ? x + 12 : x - 12 - wBox, by = Math.min(Math.max(y - hBox - 8, T0), H - B - hBox);
+      box.setAttribute("x", bx); box.setAttribute("y", by); box.setAttribute("width", wBox); box.setAttribute("height", hBox);
+      tx.forEach((t, i) => { t.setAttribute("x", bx + 8); t.setAttribute("y", by + 6 + (i + 1) * (fs + 4) - 3); });
+    }
+  }
+
+  // altitude under the pointer, from the chart's own geometry
+  function zFromEvent(ev) {
+    const svg = $("chart"); if (!geo || !svg.getScreenCTM()) return null;
+    const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const q = pt.matrixTransform(svg.getScreenCTM().inverse());
+    if (q.x < geo.L || q.x > geo.W - geo.R || q.y < geo.T0 - 4 || q.y > geo.H - geo.B + 4) return null;
+    return Math.min(geo.zmax, Math.max(0, geo.zmax * (1 - (q.y - geo.T0) / (geo.H - geo.T0 - geo.B))));
+  }
+
+  // every view has its own link
+  const KEYS = ["co2", "clouds", "h2o", "ocs", "co", "so2", "hcl"];
+  function query() {
+    const q = new URLSearchParams();
+    q.set("run", mode === "pressure" ? "pressure" : "absorbers");
+    if (mode === "pressure" && alb === 0) q.set("reflect", "0");
+    if (mode === "greenhouse" && hGreen !== ZE) q.set("h", hGreen.toFixed(1));
+    if (showBar) q.set("bar", "1");
+    if (pinned && readZ != null) q.set("at", readZ.toFixed(1));
+    const o = [...off].sort((a, b) => a - b).map(i => KEYS[i]).join(",");
+    if (o !== "co2") q.set("off", o || "none");
+    return q.toString().replace(/%2C/g, ",");
+  }
+  function linkHere() { return location.href.split(/[?#]/)[0] + "?" + query(); }
+  function syncURL() { try { history.replaceState(null, "", "?" + query()); } catch (e) { /* not available here */ } }
+  function readURL() {
+    let q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
+    if (q.get("run") === "pressure") mode = "pressure";
+    if (q.get("reflect") === "0") alb = 0;
+    const h = parseFloat(q.get("h")); if (h >= 1 && h <= 80) hGreen = Math.abs(h - ZE) < 0.25 ? ZE : h;
+    if (q.get("bar") === "1") showBar = true;
+    const at = parseFloat(q.get("at")); if (at >= 0 && at <= 80) { readZ = at; pinned = true; }
+    const o = q.get("off");
+    if (o != null) { off.clear(); if (o !== "none") o.split(",").forEach(k => { const i = KEYS.indexOf(k.trim().toLowerCase()); if (i >= 0) off.add(i); }); }
   }
 
   function render() {
@@ -404,7 +459,8 @@
     $("h").value = hGreen; $("hO").textContent = hGreen === ZE ? `${ZE.toFixed(2)} km (measured)` : `${hGreen.toFixed(1)} km`;
     document.querySelectorAll(".mode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === mode)));
     document.querySelectorAll(".seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.a === alb)));
-    drawChart(st);
+    $("bar1").setAttribute("aria-pressed", String(showBar));
+    drawChart(st); syncURL();
   }
 
   function renderGases() {
@@ -441,6 +497,7 @@
         ? `would put it at ${r(Tv - sum)} K, below Tₑ: impossible.`
         : `is not the answer either.`} Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.`;
     $("gasV").innerHTML = html;
+    syncURL();
   }
 
   function drawRange(Tv, floor, lo, hi, naive) {
@@ -474,11 +531,26 @@
 
   document.querySelectorAll(".mode button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.m; render(); }));
   document.querySelectorAll(".seg button").forEach(b => b.addEventListener("click", () => { alb = +b.dataset.a; render(); }));
-  $("bar1").addEventListener("click", () => { showBar = !showBar; $("bar1").setAttribute("aria-pressed", String(showBar)); render(); });
+  $("bar1").addEventListener("click", () => { showBar = !showBar; render(); });
+  const chart = $("chart");
+  chart.addEventListener("pointermove", ev => { if (pinned) return; const z = zFromEvent(ev); readZ = z; drawChart(state()); });
+  chart.addEventListener("pointerleave", ev => { if (pinned || ev.pointerType === "touch") return; readZ = null; drawChart(state()); });
+  chart.addEventListener("click", ev => {
+    const z = zFromEvent(ev); if (z == null) return;
+    if (pinned && readZ != null && Math.abs(z - readZ) < 1.5) { pinned = false; readZ = null; } else { pinned = true; readZ = z; }
+    drawChart(state()); syncURL();
+  });
+  $("copyLink").addEventListener("click", async () => {
+    const url = linkHere(), btn = $("copyLink"), box = $("linkBox");
+    try { await navigator.clipboard.writeText(url); btn.textContent = "Link copied"; box.hidden = true; }
+    catch (e) { box.value = url; box.hidden = false; box.focus(); box.select(); btn.textContent = "Copy the link below"; }
+    setTimeout(() => { btn.textContent = "Copy link to this view"; }, 2500);
+  });
   $("h").addEventListener("input", () => { const v = +$("h").value; hGreen = Math.abs(v - ZE) < 0.25 ? ZE : v; render(); });   // snaps to the measured level
   let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { render(); renderGases(); }, 120); });
   $("gAllOn").addEventListener("click", () => { off.clear(); renderGases(); });
   $("gAllOff").addEventListener("click", () => { GASES.forEach((_, i) => off.add(i)); renderGases(); });
+  readURL();
   render(); renderGases();
 })();
 </script>
