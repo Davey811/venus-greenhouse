@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Venus Test</title>
 <meta name="description" content="Is Venus hot because of pressure or because of the greenhouse effect? Two runs, an energy ledger, measured data and the published model.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Venus Test: pressure or greenhouse effect?">
+<meta property="og:description" content="Same 92 bar, same lapse rate: 227 K without infrared absorbers, 735 K with them. An interactive energy ledger on measured data and the published model.">
+<meta property="og:url" content="https://davey811.github.io/venus-greenhouse/">
+<meta property="og:image" content="https://davey811.github.io/venus-greenhouse/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Venus temperature profile: 227 K without infrared absorbers, 735 K with them, same pressure and lapse rate.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Venus Test: pressure or greenhouse effect?">
+<meta name="twitter:description" content="Same 92 bar, same lapse rate: 227 K without infrared absorbers, 735 K with them. An interactive energy ledger on measured data and the published model.">
+<meta name="twitter:image" content="https://davey811.github.io/venus-greenhouse/og.png">
 <style>
   :root {
     --bg: #0f1419; --panel: #161d24; --line: #2a333d; --fg: #e7e9ea; --dim: #8b98a5;
@@ -90,6 +102,16 @@
   details p { margin: 7px 0 0; max-width: 780px; }
   a { color: var(--teal); }
   .eqwrap { overflow-x: auto; }
+  section[id], details[id] { scroll-margin-top: 14px; }
+  .quick { margin: 0 0 16px; }
+  .quick .nums { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  @media (max-width: 860px) { .quick .nums { grid-template-columns: 1fr 1fr; } }
+  .quick .nums b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; color: var(--teal); }
+  .quick .nums b.hot { color: var(--red); } .quick .nums b.cold { color: var(--grey); }
+  .quick .nums span { display: block; font-size: 13px; color: var(--dim); line-height: 1.4; margin-top: 2px; }
+  .toc { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .toc a { text-decoration: none; } .toc a:hover { text-decoration: underline; }
+  details:target > summary { color: var(--amber); }
   table.fltab { margin-top: 6px; }
   #reportList { font-size: 13px; align-self: center; margin-left: 6px; }
   ul.corr { margin: 0; padding-left: 20px; font-size: 14px; }
@@ -113,8 +135,21 @@
   <p class="sub">Venus's surface is at 735 K, hot enough to melt lead. Is that the 92 bar of pressure, or the greenhouse effect?
   Same planet, same sunlight, same pressure, same lapse rate. Two runs, and an energy ledger that has to balance.</p>
 
+  <section class="card quick" id="quick" aria-label="In 60 seconds">
+    <h2>In 60 seconds</h2>
+    <div class="nums">
+      <div><b>16,576 W/m²</b><span>infrared emitted by the ground, σT⁴ at 735 K</span></div>
+      <div><b>150 W/m²</b><span>leave Venus: the same as the sunlight it absorbs</span></div>
+      <div><b class="hot">16,426 W/m²</b><span>never reach space: the air traps them. That is the greenhouse effect</span></div>
+      <div><b class="cold">227 K</b><span>the ground with the same 92 bar but no infrared absorbers (327 K even reflecting nothing)</span></div>
+    </div>
+    <nav class="toc" aria-label="Contents">
+      <a href="#tool">The two runs</a><a href="#ledger">Energy ledger</a><a href="#absorbers">Switch absorbers off</a><a href="#argument">The argument</a><a href="#first-law">First Law in time</a><a href="#compression">Compression</a><a href="#mercury">The Mercury test</a><a href="#equations">The equations</a><a href="#objections">Objections</a><a href="#report">Found an error?</a>
+    </nav>
+  </section>
+
   <div class="grid">
-    <section class="card" aria-label="Runs">
+    <section class="card" id="tool" aria-label="Runs">
       <h2>Run</h2>
       <div class="mode" role="group" aria-label="Run">
         <button data-m="pressure" aria-pressed="false">Pressure only<span class="k">92 bar of air that doesn't absorb infrared</span></button>
@@ -155,7 +190,7 @@
   </div>
 
   <div class="grid2">
-    <section class="card" aria-label="Energy ledger">
+    <section class="card" id="ledger" aria-label="Energy ledger">
       <h2>Energy ledger, per square metre, planet average</h2>
       <table>
         <tr class="head"><td colspan="2">Venus as a whole</td></tr>
@@ -173,7 +208,7 @@
       <p class="verdict" id="verdict"></p>
     </section>
 
-    <section class="card" aria-label="Published model">
+    <section class="card" id="absorbers" aria-label="Published model">
       <h2>The published model: switch absorbers off</h2>
       <p class="note" style="margin:0 0 8px">Bullock and Grinspoon's radiative-convective model of Venus, as reported by Taylor and Grinspoon (2009, Table 2):
         how much the surface cools when one species is removed from the model's greenhouse calculation, with the planet's albedo
@@ -186,7 +221,7 @@
     </section>
   </div>
 
-  <section class="card wide prose" aria-label="The argument">
+  <section class="card wide prose" id="argument" aria-label="The argument">
     <h2>The argument, step by step</h2>
     <ol class="steps">
       <li><b>Venus is in energy balance.</b> It absorbs about 150 W/m² of sunlight, averaged over the planet, and sends the same back to space as infrared.
@@ -204,7 +239,7 @@
     </ol>
   </section>
 
-  <section class="card wide prose" aria-label="The First Law in time">
+  <section class="card wide prose" id="first-law" aria-label="The First Law in time">
     <h2>The First Law, in time</h2>
     <p>Add absorbers and the emission level moves up. For a while Venus radiates from colder air: less power leaves than arrives, and the difference is stored as heat, dU/dt = P<sub>in</sub> − P<sub>out</sub>. The column warms at the same lapse rate until the new level radiates the absorbed power again. Nothing is created: the warming is paid for by the imbalance.</p>
     <div class="gtools" role="group" aria-label="Raise the emission level"><button data-dz="1" aria-pressed="true">Raise the emission level by 1 km</button><button data-dz="5" aria-pressed="false">by 5 km</button></div>
@@ -218,7 +253,7 @@
     <p class="note" style="margin-top:8px">Rough time scale: the whole atmosphere warms together at a fixed lapse rate, with heat capacity C = (p₀ / g) × c<sub>p</sub> = (9.21 × 10⁶ Pa / 8.87 m/s²) × 1.1 kJ/(kg·K) ≈ 1.1 × 10⁹ J/(m²·K), c<sub>p</sub> of CO₂ at 600–700 K (Çengel and Cimbala, Table A-10). The end state does not depend on C; only the timing does.</p>
   </section>
 
-  <section class="card wide prose" aria-label="If compression paid the bill">
+  <section class="card wide prose" id="compression" aria-label="If compression paid the bill">
     <h2>If compression paid the bill</h2>
     <p>Suppose there were no greenhouse effect and the ground were kept at 735 K by compression. The ground loses <b id="cmBill"></b> more than the sunlight that reaches it, every second. Compression can supply that only while the air is actually being compressed: gravity does work as the column sinks, at a rate p₀ × v per square metre.</p>
     <table class="fltab">
@@ -231,7 +266,7 @@
     <p class="note" style="margin-top:8px">A static atmosphere does no work: compression heats only while it lasts. Energy from the VIRA profile (log-linear between levels, the column above 80 km added with a 4.7 km scale height); the bill is σT⁴ at 735.3 K minus the 17 W/m² of sunlight at the ground.</p>
   </section>
 
-  <section class="card wide prose" aria-label="The Mercury test">
+  <section class="card wide prose" id="mercury" aria-label="The Mercury test">
     <h2>The Mercury test: closer to the Sun, and two months of night</h2>
     <p>Mercury is the closer, darker planet, with no atmosphere. If distance from the Sun explained Venus, Mercury would be hotter.</p>
     <div class="eqwrap">
@@ -250,7 +285,7 @@
     <p class="note">NASA NSSDC Planetary Fact Sheets, Mercury and Venus: solar irradiance, Bond albedo, black-body temperature, average temperature, length of day, diurnal temperature range.</p>
   </section>
 
-  <section class="card wide prose" aria-label="The explicit equations">
+  <section class="card wide prose" id="equations" aria-label="The explicit equations">
     <h2>The explicit equations</h2>
     <p>The same chain for Earth and Venus. It reproduces both measured surfaces, and it shows what the middle-of-the-mass rule leaves unexplained.</p>
     <div class="eqwrap">
@@ -284,63 +319,63 @@
       The emission heights are read from the measured profiles; computing them from the spectra is what the published model in the panel above does.</p>
   </section>
 
-  <section class="card wide prose" aria-label="Objections">
+  <section class="card wide prose" id="objections" aria-label="Objections">
     <h2>Objections</h2>
-    <details>
+    <details id="o-mass">
       <summary>"Taylor and Grinspoon themselves say it's the mass of the atmosphere."</summary>
       <p>They do: <q>the high surface temperature on Venus, is largely a consequence of the large mass of the atmosphere, rather than any mysterious thermal process</q> (§2.2). The same paper says how the mass works: <q>Most of the energy deposited at depth cannot escape as long-wave radiation</q> and has to be carried up to near the cloud tops before it can radiate to space (§2.4). A massive CO₂ atmosphere is a thick layer of infrared absorber, and that is what lifts the radiating level to 71 km. In the same paper, switching off CO₂'s absorption in the model cools the surface by 423 K (Table 2).</p>
     </details>
-    <details>
+    <details id="o-earth-92-bar">
       <summary>"They also say Earth with 92 bar would be hot even without more greenhouse gas."</summary>
       <p>The sentence is: <q>If the Earth had such a high surface pressure, it too would be extremely hot, even without the increased proportion of greenhouse gases that is found on Venus</q> (§2.2). With the same proportions, 92 times the air means 92 times the CO₂ above every square metre, and the higher pressure broadens the absorption lines: the absorber grows with the mass. What doesn't work is mass without absorbers, which is the first run: 227 K.</p>
     </details>
-    <details>
+    <details id="o-lapse-rate">
       <summary>"It's just the adiabatic lapse rate."</summary>
       <p>The measured profile, in the paper's words, <q>roughly follows the hydrostatic and adiabatic formulae</q> (§2.2). The lapse rate says how much warmer the ground is than the level that radiates to space; it doesn't say where that level is. With no absorbers that level is the ground itself, and the ground sits at 227 K.</p>
     </details>
-    <details>
+    <details id="o-compression">
       <summary>"Compression heats the gas."</summary>
       <p>Compressing a gas warms it while it is being compressed: the work done is pressure times the change in volume. Venus's atmosphere isn't being compressed. A pressure that doesn't change does no work, while the ground radiates away 16,600 joules per square metre every second. To pay that by compression the air would have to sink by about 57 km a year, and the whole gravitational energy of the atmosphere would last about three months: see "If compression paid the bill".</p>
     </details>
-    <details>
+    <details id="o-closer">
       <summary>"Venus is closer to the Sun."</summary>
       <p>Venus reflects about 76% of the sunlight it receives and absorbs less than Earth: the paper gives equilibrium temperatures <q>of about 230 K for Venus and 250 K for Earth</q> (§2.4). Even if Venus reflected nothing, a ground that radiates freely to space couldn't average more than 327 K. Try it in the first run. And Mercury, closer and darker, absorbs 14 times more sunlight and is 300 K colder: see "The Mercury test".</p>
     </details>
-    <details>
+    <details id="o-interior">
       <summary>"The heat comes from the interior, from volcanoes."</summary>
       <p><q>Interior heat release cannot, in any case, be the dominant influence in surface temperature, because of the constraints placed by the energy balance measurements</q> (§2.4). What leaves Venus matches the sunlight it absorbs.</p>
     </details>
-    <details>
+    <details id="o-transparent">
       <summary>"The first run is unrealistic: no gas at 92 bar is transparent in the infrared."</summary>
       <p>Right, and that absorption is the greenhouse effect. The first run is the control: same mass, same sunlight, no infrared absorption. Whatever the real air adds on top of it, it adds by absorbing infrared.</p>
     </details>
-    <details>
+    <details id="o-convection">
       <summary>"The air could give the heat back by convection, not by radiation."</summary>
       <p>It doesn't matter how the energy gets back to the ground. The ground sends out 16,600 W/m² as infrared and only 150 W/m² leave Venus, so the rest is absorbed by the air. Air that absorbs the ground's infrared is the greenhouse effect, whatever happens next. And on Venus convection carries energy up, not down: it is <q>raised by convection</q> towards the cloud tops (§2.4).</p>
     </details>
-    <details>
+    <details id="o-tuned">
       <summary>"You tuned the second run to give 735 K."</summary>
       <p>Yes: its height and slope are read from the measured profile, so it matches Venus by construction. It is there to show the shape, not to prove the greenhouse effect. The proof doesn't use it: it uses the ground's temperature, the energy that leaves Venus and the sunlight that reaches the ground, all measured.</p>
     </details>
-    <details>
+    <details id="o-emission-height">
       <summary>"You need the adiabatic lapse rate to compute the emission height."</summary>
       <p>No. The emission height comes from radiation and hydrostatics alone: with the absorber mixed in the air, τ(z) = τ₀ p(z)/p₀, and Venus radiates from where τ ≈ 1, so z<sub>e</sub> = H ln τ₀, with H = RT/(Mg). The lapse rate is needed only to go from that level down to the ground. And with radiation alone, no convection, the ground would be far hotter: press "Show radiation only" under the chart. Convection, at the adiabatic lapse rate, is what brings it down to 735 K.</p>
     </details>
-    <details>
+    <details id="o-one-bar">
       <summary>"At 1 bar Venus is at 15 °C, like the Earth."</summary>
       <p>Not in the measurements. In the Venus International Reference Atmosphere the pressure is 1 bar at 50.5 km, where the air is at 346 K, 73 °C. The air is at 15 °C higher up, at 56.8 km, where the pressure is 0.4 bar. Press "Show the 1-bar level" under the chart. Anchoring Earth's surface temperature at Venus's 1-bar level is a choice, not a measurement, and the anchor is the whole question.</p>
     </details>
-    <details>
+    <details id="o-long-day">
       <summary>"It's the Sun: the long Venus day bakes the surface."</summary>
       <p>The solar day on Venus lasts about 117 Earth days, so the nights last about two months. NASA lists Venus's day–night temperature range as ~0: the surface doesn't cool in the dark. Mercury, with a longer day and 14 times more absorbed sunlight but no atmosphere, averages 440 K. See "The Mercury test".</p>
     </details>
-    <details>
+    <details id="o-17">
       <summary>"Only 17 W/m² of sunlight reaches the ground. How can it be the greenhouse effect?"</summary>
       <p>That's the strongest evidence for it. 17 W/m² of sunlight can't keep up a ground that emits 16,600 W/m². Almost all of the energy the ground receives arrives as infrared from the air above.</p>
     </details>
   </section>
 
-  <section class="card wide prose" aria-label="Found an error?">
+  <section class="card wide prose" id="report" aria-label="Found an error?">
     <h2>Found an error?</h2>
     <p>Every number on this page comes from the equations and data listed below, and the code is public. If one is wrong, show which one, the value you get instead and how you get it. The report opens on GitHub, already filled in with a link to the view you are looking at.</p>
     <div class="gtools"><button id="reportBtn">Report an error</button><a id="reportList" href="https://github.com/Davey811/venus-greenhouse/issues?q=is%3Aissue+in%3Atitle+%22Error+report%22">See the reports</a></div>
@@ -513,8 +548,8 @@
     if (o !== "co2") q.set("off", o || "none");
     return q.toString().replace(/%2C/g, ",");
   }
-  function linkHere() { return location.href.split(/[?#]/)[0] + "?" + query(); }
-  function syncURL() { try { history.replaceState(null, "", "?" + query()); } catch (e) { /* not available here */ } }
+  function linkHere() { return location.href.split(/[?#]/)[0] + "?" + query() + location.hash; }
+  function syncURL() { try { history.replaceState(null, "", "?" + query() + location.hash); } catch (e) { /* not available here */ } }
   function readURL() {
     let q; try { q = new URLSearchParams(location.search); } catch (e) { return; }
     if (q.get("run") === "pressure") mode = "pressure";
@@ -747,8 +782,17 @@
     } catch (e) { $("reportCount").textContent = "The list of reports is on GitHub."; }
   })();
 
+  function openFromHash() {
+    const id = decodeURIComponent(location.hash.slice(1)); if (!id) return;
+    const t = document.getElementById(id); if (!t) return;
+    if (t.tagName === "DETAILS") t.open = true;
+    t.scrollIntoView();
+  }
+  window.addEventListener("hashchange", openFromHash);
+
   readURL();
   render(); renderGases(); drawFL();
+  openFromHash();
 })();
 </script>
 </body>

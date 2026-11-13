@@ -12,7 +12,7 @@ A popular claim says the greenhouse effect isn't needed on Venus: the surface is
 
 The lapse rate is real: Venus's air gets hotter towards the ground at about 7 K per km. The question is what sets the temperature at the ground, and that is decided by energy.
 
-**Using the page.** Hover or touch the measured curve to read altitude, temperature and pressure; click or tap to pin the reading. "Copy link to this view" copies a link that reopens the page exactly as it is: the run, the reflection, the emission height, the 1-bar level, the pinned reading and the absorbers switched off. For example, `?run=pressure&reflect=0` opens the no-absorber ceiling of 327 K, and `?bar=1&at=50.5` the 1-bar level with its reading.
+**Using the page.** Every section has its own address, for example `#mercury`, `#compression` or `#equations`, and every objection too, for example `#o-compression` or `#o-one-bar`: the link opens the page there, with the objection already open. Hover or touch the measured curve to read altitude, temperature and pressure; click or tap to pin the reading. "Copy link to this view" copies a link that reopens the page exactly as it is: the run, the reflection, the emission height, the 1-bar level, the pinned reading and the absorbers switched off. For example, `?run=pressure&reflect=0` opens the no-absorber ceiling of 327 K, and `?bar=1&at=50.5` the 1-bar level with its reading.
 
 ## The argument, step by step
 
@@ -181,6 +181,7 @@ Every number here comes from the equations and data in this repository. If one i
 
 ```
 index.html          interactive page (self-contained)
+og.png              preview image shown when the page is shared
 venus_test.py       computes every number above from the data file and draws the figure
 data/
   venus_vira.csv    Venus International Reference Atmosphere, 0–100 km
