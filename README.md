@@ -57,6 +57,20 @@ One species at a time: the values are not additive. On the page you can switch o
 - it cools by **at most** about 509 K (735 − 227), which would leave the ground at T_e: with nothing absorbing infrared and the albedo fixed, that is where the first run sits;
 - the plain sum of the single effects is not the answer. With everything switched off it comes to 653.6 K, which would leave the ground at 82 K, below T_e: impossible. Absorbers overlap in the spectrum and the response isn't linear, so the effects don't add up.
 
+## Radiation only
+
+"Show radiation only" draws a third profile: the same absorbers, with no convection, in radiative equilibrium. It uses Eddington's grey atmosphere, the classic result for stellar atmospheres, with no lapse rate in it:
+
+```
+T^4(τ) = (3/4) T_e^4 (τ + 2/3),   τ = τ₀ p / p₀
+emission to space at τ ≈ 2/3 to 1, so z_e = H ln τ₀ (hydrostatics, no lapse rate)
+ground: T_s = T_e (3τ₀/4 + 1/2)^(1/4)
+```
+
+With τ₀ ≈ 3,300 (the grey optical depth that puts the emission level at 71.4 km on the measured profile) the ground would be at about 1,600 K, not 735 K. Deep down this profile has d ln T / d ln p = 1/4, steeper than the adiabat's R/c_p ≈ 0.17 (CO₂, c_p ≈ 1.1 kJ/(kg·K) at 600–700 K): it is unstable, so convection starts and carries heat up until the slope is adiabatic. The measured value near the ground, between 0 and 10 km, is 0.167. The lapse rate doesn't heat Venus; it caps it.
+
+The profile is drawn at the altitudes where the measured profile has the same pressure; a hotter atmosphere would be taller. Grey model: an order of magnitude, not a forecast.
+
 ## The First Law, in time
 
 Add absorbers and the emission level moves up. For a while Venus radiates from colder air, so less power leaves than arrives, and the difference is stored as heat: dU/dt = P_in − P_out. The column warms at the same lapse rate until the new level radiates the absorbed power again. Nothing is created: the warming is paid for by the imbalance, and the page checks it by adding up the imbalance over time and comparing it with the energy stored.
@@ -118,6 +132,9 @@ It doesn't matter how the energy gets back to the ground. The ground sends out 1
 
 **"You tuned the second run to give 735 K."**
 Yes: its height and slope are read from the measured profile, so it matches Venus by construction. It is there to show the shape, not to prove the greenhouse effect. The proof doesn't use it: it uses the ground's temperature, the energy that leaves Venus and the sunlight that reaches the ground, all measured.
+
+**"You need the adiabatic lapse rate to compute the emission height."**
+No. The emission height comes from radiation and hydrostatics alone: with the absorber mixed in the air, τ(z) = τ₀ p(z)/p₀, and Venus radiates from where τ ≈ 1, so z_e = H ln τ₀, with H = RT/(Mg). The lapse rate is needed only to go from that level down to the ground. With radiation alone, no convection, the ground would be far hotter (see "Radiation only"); convection, at the adiabatic lapse rate, brings it down to 735 K.
 
 **"At 1 bar Venus is at 15 °C, like the Earth."**
 Not in the measurements. In VIRA the pressure is 1 bar at 50.5 km, where the air is at 346 K (73 °C); the air is at 15 °C at 56.8 km, where the pressure is 0.4 bar (log-linear interpolation in pressure, linear in temperature). The interactive page marks both levels with "Show the 1-bar level". Anchoring Earth's surface temperature at Venus's 1-bar level is a choice, not a measurement, and the anchor is the whole question.

@@ -129,6 +129,21 @@ def main():
         out.append(f"  +{dz:.0f} km: outgoing - absorbed {first:+.1f} W/m2, ground {ts - ts0:+.2f} K after 80 years "
                    f"(end state {T_em(z1) + gamma * z1 - ts0:+.2f} K), stored {C * (ts - ts0) / 1e9:.2f} GJ/m2 = added up {total / 1e9:.2f} GJ/m2")
     out.append("")
+    # radiation only: Eddington grey radiative equilibrium with the same absorbers
+    with open(os.path.join(BASE, "data", "venus_vira.csv")) as fh:
+        rows = list(csv.DictReader(fh))
+    zz = np.array([float(r["altitude_km"]) for r in rows]); pp = np.array([float(r["pressure_bar"]) for r in rows])
+    p_e = float(np.exp(np.interp(ze, zz, np.log(pp))))
+    tau0 = pp[0] / p_e
+    T_rad = Te * (0.75 * tau0 + 0.5) ** 0.25
+    slope = np.log(T[0] / T[2]) / np.log(pp[0] / pp[2])
+    out += [
+        "Radiation only (Eddington grey atmosphere, no convection):",
+        f"  tau0 = p0 / p(z_e) = {pp[0]} / {p_e:.4f} = {tau0:.0f}",
+        f"  ground T = Te (3 tau0/4 + 1/2)^(1/4) = {T_rad:.0f} K (measured {T[0]} K)",
+        f"  d lnT / d lnp: radiative 0.25, adiabat R/cp = {188.9 / 1100:.3f}, measured 0-10 km {slope:.3f}",
+        "",
+    ]
     out.append("Published model, one species removed (Taylor & Grinspoon 2009, Table 2):")
     out += [f"  {n:7s} -{d:5.1f} K  ->  about {int(np.floor(T[0] - d + 0.5))} K" for n, d in REMOVE_ONE]
     total = sum(d for _, d in REMOVE_ONE)
